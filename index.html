@@ -43,7 +43,7 @@
     <section id="tela-login" class="min-h-screen flex items-center justify-center p-4 bg-blue-hapvida">
         <div class="bg-white w-full max-w-sm rounded-3xl p-8 shadow-2xl text-center">
             <h1 class="text-2xl font-extrabold italic text-blue-hapvida mb-2 uppercase tracking-tighter">App Supimpa</h1>
-            <p class="text-gray-400 text-[10px] mb-8 font-black uppercase tracking-widest italic">Líder Saúde Backoffice</p>
+            <p class="text-gray-400 text-[10px] mb-8 font-black uppercase tracking-widest italic">Faça o login para continuar, meu lindo</p>
             <div class="space-y-4 text-left">
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase ml-2 italic">Usuário</label>
@@ -62,7 +62,7 @@
         <header class="bg-blue-hapvida text-white py-6 px-4 shadow-lg text-center relative">
             <button onclick="fazerLogout()" class="absolute right-4 top-7 text-blue-200"><i data-lucide="log-out" class="w-5 h-5"></i></button>
             <h1 class="text-2xl font-extrabold tracking-tight italic">App Supimpa v1.3</h1>
-            <p class="text-blue-100 text-sm opacity-80 uppercase font-bold tracking-widest">Backoffice</p>
+            <p class="text-blue-100 text-sm opacity-80 uppercase font-bold tracking-widest">Ferramentas úteis bem bacana </p>
         </header>
 
         <main class="max-w-5xl mx-auto p-4">
@@ -95,14 +95,14 @@
             <section id="tela-cotacao" class="hidden py-4">
                 <button onclick="abrirTela('tela-menu')" class="mb-4 text-blue-hapvida font-bold italic text-xs uppercase flex items-center gap-1"><i data-lucide="chevron-left" class="w-4 h-4"></i> Voltar</button>
                 <div class="bg-white p-6 rounded-3xl shadow-lg border-t-8 border-blue-600">
-                    <h2 class="text-xl font-black text-center mb-6 uppercase italic">Gerador de Cotação</h2>
+                    <h2 class="text-xl font-black text-center mb-6 uppercase italic">Cotação</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input type="text" id="nomeCorretor" placeholder="Nome do Corretor" class="p-4 bg-gray-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-hapvida transition-all font-bold">
                         <input type="text" id="telCorretor" placeholder="WhatsApp" class="p-4 bg-gray-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-hapvida transition-all font-bold">
                     </div>
                     <div class="mt-4 p-4 bg-blue-50 rounded-2xl flex justify-center gap-6">
                         <label class="flex items-center gap-2 font-bold text-sm"><input type="radio" name="tipoContrato" value="INDIVIDUAL" checked> INDIVIDUAL</label>
-                        <label class="flex items-center gap-2 font-bold text-sm"><input type="radio" name="tipoContrato" value="PME"> PME (CNPJ)</label>
+                        <label class="flex items-center gap-2 font-bold text-sm"><input type="radio" name="tipoContrato" value="PME"> SUPER SIMPLES</label>
                     </div>
                     <div class="mt-4">
                         <textarea id="idadesInput" oninput="contarVidas()" placeholder="Digite as idades (ex: 25, 30, 2)" class="w-full p-4 bg-gray-50 rounded-2xl h-24 outline-none border-2 border-transparent focus:border-blue-hapvida transition-all font-bold"></textarea>
@@ -114,12 +114,12 @@
                             <option value="NOSSO PLANO">NOSSO PLANO</option>
                         </select>
                         <select id="copart" class="p-4 bg-gray-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-hapvida transition-all font-bold">
-                            <option value="PARCIAL">COPART PARCIAL</option>
-                            <option value="TOTAL">SEM COPART (TOTAL)</option>
+                            <option value="PARCIAL">COPARTICIPAÇÃO PARCIAL</option>
+                            <option value="TOTAL">COPARTICIPAÇÃO TOTAL</option>
                         </select>
                     </div>
                     <div class="flex flex-wrap gap-4 mt-6 justify-center bg-gray-50 p-4 rounded-2xl">
-                        <label class="flex items-center gap-2 text-xs font-bold"><input type="checkbox" id="checkAmb" checked> AMB</label>
+                        <label class="flex items-center gap-2 text-xs font-bold"><input type="checkbox" id="checkAmb" checked> AMBULATORIAL</label>
                         <label class="flex items-center gap-2 text-xs font-bold"><input type="checkbox" id="checkEnf" checked> ENFERMARIA</label>
                         <label class="flex items-center gap-2 text-xs font-bold"><input type="checkbox" id="checkApt" checked> APARTAMENTO</label>
                     </div>
@@ -203,3 +203,4 @@
     <script type="module" src="script.js"></script>
 </body>
 </html>
+
