@@ -2,6 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+// CONFIGURAÇÃO FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyB69yq8gyn_hDn2Cbbhb1wwIpzvQp_dkwA",
   authDomain: "app-supimpa.firebaseapp.com",
@@ -17,39 +18,48 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 const destaqueRef = ref(db, 'config/funcionarioDoMes');
-
 let funcionarioDoMesGlobal = "";
 
-// --- LÓGICA DE ACESSO (USUÁRIO) ---
+// --- SISTEMA DE LOGIN ---
 window.fazerLogin = function() {
     const usuario = document.getElementById('login-usuario').value.trim().toLowerCase();
     const senha = document.getElementById('login-senha').value;
+    const btn = document.getElementById('btn-entrar');
     
-    if(!usuario || !senha) return alert("Preencha tudo!");
+    if(!usuario || !senha) return alert("Ei! Digite o usuário e a senha.");
 
-    const emailFalso = `${usuario}@supimpa.com`;
+    btn.innerText = "ENTRANDO...";
+    btn.disabled = true;
 
-    signInWithEmailAndPassword(auth, emailFalso, senha)
-        .catch(() => alert("Usuário ou senha inválidos!"));
+    // AQUI ESTÁ O SEU PADRÃO:
+    const emailCompleto = `${usuario}@lider-saude.com`;
+
+    signInWithEmailAndPassword(auth, emailCompleto, senha)
+        .catch((error) => {
+            alert("Usuário ou senha inválidos!");
+            btn.innerText = "ENTRAR";
+            btn.disabled = false;
+        });
 };
 
 window.fazerLogout = function() {
-    signOut(auth);
+    if(confirm("Deseja sair do aplicativo?")) signOut(auth);
 };
 
+// VIGILANTE DE ACESSO
 onAuthStateChanged(auth, (user) => {
     if (user) {
         document.getElementById('tela-login').classList.add('hidden');
         document.getElementById('conteudo-app').classList.remove('hidden');
-        carregarDadosIniciais();
+        iniciarEscutaFirebase();
     } else {
         document.getElementById('tela-login').classList.remove('hidden');
         document.getElementById('conteudo-app').classList.add('hidden');
     }
 });
 
-// --- FUNCIONALIDADES DO APP ---
-function carregarDadosIniciais() {
+// --- MONITORAMENTO ---
+function iniciarEscutaFirebase() {
     onValue(destaqueRef, (snapshot) => {
         funcionarioDoMesGlobal = snapshot.val() || "Narry";
         atualizarStatus();
@@ -81,7 +91,7 @@ async function atualizarStatus() {
                         <div class="w-10 h-10 rounded-full ${ehDestaque ? 'bg-yellow-200 text-gold' : 'bg-blue-100 text-blue-hapvida'} flex items-center justify-center font-black text-sm uppercase">${adm.nome.charAt(0)}</div>
                         <div>
                             ${ehDestaque ? '<p class="text-[9px] font-black text-gold uppercase mb-1">🏆 Destaque do Mês</p>' : ''}
-                            <p class="text-sm font-bold ${ehDestaque ? 'text-gold' : 'text-gray-800'}">${adm.nome}</p>
+                            <p class="text-sm font-bold ${ehDestaque ? 'text-gold' : 'text-gray-800'}">${adm.nome} ${ehDestaque ? '💎' : ''}</p>
                             <p class="text-[10px] text-gray-400 uppercase font-bold italic">${adm.cargo}</p>
                         </div>
                     </div>
@@ -95,17 +105,20 @@ async function atualizarStatus() {
     } catch (e) { console.error(e); }
 }
 
+// --- ADMIN ---
 window.salvarConfig = function() {
-    const senha = prompt("Senha de Administrador:");
+    const senha = prompt("Confirme a senha de Admin:");
     if (senha === "supimpa123") {
         const novo = document.getElementById('input-destaque').value.trim();
-        if (novo) set(destaqueRef, novo).then(() => { alert("Sucesso!"); fecharConfig(); });
-    } else { alert("Senha errada!"); }
+        if (novo) set(destaqueRef, novo).then(() => { alert("Destaque atualizado! 🚀"); fecharConfig(); });
+    } else { alert("Acesso negado!"); }
 };
 
+// --- NAVEGAÇÃO ---
 window.abrirTela = (id) => {
     document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
+    window.scrollTo(0,0);
 };
 window.abrirConfig = () => {
     document.getElementById('input-destaque').value = funcionarioDoMesGlobal;
@@ -114,5 +127,4 @@ window.abrirConfig = () => {
 };
 window.fecharConfig = () => document.getElementById('modal-config').classList.add('hidden');
 
-// Atualização automática a cada minuto
 setInterval(() => { if(auth.currentUser) atualizarStatus(); }, 60000);
