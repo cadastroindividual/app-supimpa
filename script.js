@@ -43,7 +43,7 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// --- SUA TABELA DE PREÇOS ---
+// --- TABELAS ---
 const tabelaPrecos = {
     "INDIVIDUAL": {
         "NOSSO MÉDICO": {
@@ -67,7 +67,7 @@ const tabelaPrecos = {
     }
 };
 
-// --- LÓGICA COTAÇÃO ---
+// --- COTAÇÃO ---
 function getFaixa(idade) {
     idade = parseInt(idade);
     if (idade <= 18) return { t: "00-18", k: "0-18" };
@@ -136,7 +136,57 @@ window.gerarOrcamento = function() {
     document.getElementById('areaResultado').classList.remove('hidden');
 };
 
-// --- CARÊNCIA ---
+// --- FUNÇÃO PDF CORRIGIDA ---
+window.exportarPDF = async function() {
+    const btn = document.getElementById('btnPDF');
+    const content = document.getElementById('resultadoArea').value;
+    if(!content) return alert("Gere uma cotação primeiro!");
+
+    btn.innerText = "GERANDO...";
+    btn.disabled = true;
+
+    try {
+        const { jsPDF } = window.jspdf;
+        
+        // Preenche o template escondido
+        document.getElementById('pdf-nome-corretor').innerText = document.getElementById('nomeCorretor').value || "Consultor Hapvida";
+        document.getElementById('pdf-tel-corretor').innerText = document.getElementById('telCorretor').value || "";
+        document.getElementById('pdf-data-emissao').innerText = `Emitido em: ${new Date().toLocaleDateString('pt-BR')}`;
+        document.getElementById('pdf-corpo').innerText = content;
+
+        const template = document.getElementById('pdf-template');
+        
+        const canvas = await html2canvas(template, { 
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: "#ffffff"
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`Cotacao_Supimpa_${new Date().getTime()}.pdf`);
+
+    } catch (err) {
+        console.error(err);
+        alert("Erro ao gerar PDF. Tente novamente.");
+    } finally {
+        btn.innerText = "BAIXAR PDF";
+        btn.disabled = false;
+    }
+};
+
+// --- OUTRAS FUNÇÕES ---
+window.copiarTexto = () => {
+    navigator.clipboard.writeText(document.getElementById('resultadoArea').value);
+    const btn = document.getElementById('btnCopiar'); btn.innerText = "COPIADO!";
+    setTimeout(() => btn.innerText = "COPIAR TEXTO", 2000);
+};
+
 window.calcularCarencia = function() {
     const data = document.getElementById('dataVigencia').value;
     if(!data) return;
@@ -154,7 +204,6 @@ window.calcularCarencia = function() {
     }).join('');
 };
 
-// --- REPIQUE ---
 window.calcularRepique = function() {
     const ad = new Date(document.getElementById('dataAdesao').value);
     const ca = new Date(document.getElementById('dataCancelamento').value);
@@ -169,7 +218,6 @@ window.calcularRepique = function() {
     }
 };
 
-// --- MONITORAMENTO ---
 async function atualizarStatus() {
     try {
         const response = await fetch('equipe.json');
@@ -186,10 +234,10 @@ async function atualizarStatus() {
             }
             const ehD = adm.nome.trim() === funcionarioDoMesGlobal.trim();
             container.innerHTML += `
-                <div class="flex items-center justify-between p-3 border rounded-2xl ${ehD ? 'border-gold border-2 bg-gold-light shadow-md' : 'bg-white border-gray-100'}">
+                <div class="flex items-center justify-between p-3 border rounded-2xl ${ehD ? 'border-gold border-2 bg-gold-light' : 'bg-white border-gray-100'}">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full ${ehD ? 'bg-yellow-200 text-gold' : 'bg-blue-100 text-blue-hapvida'} flex items-center justify-center font-black">${adm.nome.charAt(0)}</div>
-                        <div><p class="text-sm font-bold ${ehD ? 'text-gold' : 'text-gray-800'}">${adm.nome} ${ehD ? '🏆' : ''}</p><p class="text-[9px] uppercase font-bold text-gray-400 italic">${adm.cargo}</p></div>
+                        <div><p class="text-sm font-bold ${ehD ? 'text-gold' : 'text-gray-800'}">${adm.nome}</p><p class="text-[9px] uppercase font-bold text-gray-400 italic">${adm.cargo}</p></div>
                     </div>
                     <div class="text-right">
                         <span class="flex items-center gap-1 text-[9px] font-black uppercase"><span class="w-2 h-2 rounded-full ${cor} animate-pulse"></span> ${status}</span>
@@ -200,30 +248,6 @@ async function atualizarStatus() {
         lucide.createIcons();
     } catch (e) { console.error(e); }
 }
-
-// --- UTILITÁRIOS ---
-window.copiarTexto = () => {
-    navigator.clipboard.writeText(document.getElementById('resultadoArea').value);
-    const btn = document.getElementById('btnCopiar'); btn.innerText = "COPIADO!";
-    setTimeout(() => btn.innerText = "COPIAR TEXTO", 2000);
-};
-
-window.exportarPDF = async function() {
-    const { jsPDF } = window.jspdf;
-    document.getElementById('pdf-nome-corretor').innerText = document.getElementById('nomeCorretor').value || "Consultor Hapvida";
-    document.getElementById('pdf-tel-corretor').innerText = document.getElementById('telCorretor').value || "";
-    document.getElementById('pdf-data-emissao').innerText = `Emitido em: ${new Date().toLocaleDateString('pt-BR')}`;
-    document.getElementById('pdf-corpo').innerText = document.getElementById('resultadoArea').value;
-    const template = document.getElementById('pdf-template');
-    html2canvas(template, { scale: 2 }).then(canvas => {
-        const img = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const width = pdf.internal.pageSize.getWidth();
-        const height = (canvas.height * width) / canvas.width;
-        pdf.addImage(img, 'PNG', 0, 0, width, height);
-        pdf.save(`Cotacao_${new Date().getTime()}.pdf`);
-    });
-};
 
 window.salvarConfig = () => {
     if(prompt("Senha Admin:") === "supimpa123") {
