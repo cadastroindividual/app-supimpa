@@ -36,14 +36,14 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         document.getElementById('tela-login').classList.add('hidden');
         document.getElementById('conteudo-app').classList.remove('hidden');
-        onValue(destaqueRef, (s) => { funcionarioDoMesGlobal = s.val() || "Narry"; atualizarStatus(); });
+        onValue(destaqueRef, (s) => { funcionarioDoMesGlobal = s.val() || ""; atualizarStatus(); });
     } else {
         document.getElementById('tela-login').classList.remove('hidden');
         document.getElementById('conteudo-app').classList.add('hidden');
     }
 });
 
-// --- TABELAS ---
+// --- TABELA DE PREÇOS (Omitida aqui para brevidade, mas deve ser a mesma do arquivo anterior) ---
 const tabelaPrecos = {
     "INDIVIDUAL": {
         "NOSSO MÉDICO": {
@@ -136,7 +136,123 @@ window.gerarOrcamento = function() {
     document.getElementById('areaResultado').classList.remove('hidden');
 };
 
-// --- FUNÇÃO PDF CORRIGIDA ---
+// --- CARÊNCIA AJUSTADA ---
+window.calcularCarencia = function() {
+    const dataInput = document.getElementById('dataVigencia').value;
+    if(!dataInput) return;
+    
+    const inicioPlano = new Date(dataInput + "T12:00:00");
+    const hoje = new Date();
+    hoje.setHours(0,0,0,0);
+
+    const prazos = [
+        { label: "Urgência e Emergência", dias: 0 },
+        { label: "Consultas e Exames Simples", dias: 30 },
+        { label: "Exames Complexos", dias: 90 },
+        { label: "Internações e Cirurgias", dias: 180 },
+        { label: "Parto", dias: 300 },
+        { label: "Doenças Preexistentes (CPT)", dias: 730 }
+    ];
+
+    const container = document.getElementById('resultadoCarencia');
+    container.innerHTML = "";
+
+    prazos.forEach(p => {
+        const dataCarencia = new Date(inicioPlano);
+        dataCarencia.setDate(dataCarencia.getDate() + p.dias);
+        
+        const jaCumpriu = hoje >= dataCarencia;
+        const statusClass = jaCumpriu ? 'liberado' : 'bloqueado';
+        const icon = jaCumpriu ? 'check-circle' : 'clock';
+        const statusText = jaCumpriu ? 'LIBERADO PARA USO' : `DISPONÍVEL EM: ${dataCarencia.toLocaleDateString('pt-BR')}`;
+
+        container.innerHTML += `
+            <div class="p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm ${statusClass}">
+                <div>
+                    <p class="text-[10px] uppercase font-black opacity-60">Serviço</p>
+                    <p class="text-sm font-extrabold uppercase italic">${p.label}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[9px] font-black uppercase flex items-center justify-end gap-1">
+                        <i data-lucide="${icon}" class="w-3 h-3"></i> ${statusText}
+                    </p>
+                </div>
+            </div>
+        `;
+    });
+    lucide.createIcons();
+};
+
+// --- REPIQUE ---
+window.calcularRepique = function() {
+    const ad = new Date(document.getElementById('dataAdesao').value);
+    const ca = new Date(document.getElementById('dataCancelamento').value);
+    const inad = document.getElementById('inadimplente').checked;
+    const res = document.getElementById('resultadoRepique');
+    const meses = (ca.getFullYear() - ad.getFullYear()) * 12 + (ca.getMonth() - ad.getMonth());
+    res.classList.remove('hidden', 'repique-box', 'nao-repique-box');
+    
+    const styles = {
+        repique: "bg-red-100 text-red-700 border-2 border-red-300",
+        limpo: "bg-green-100 text-green-700 border-2 border-green-300"
+    };
+
+    if (meses <= 12 || inad) {
+        res.innerText = "⚠️ É REPIQUE";
+        res.className = `mt-6 p-6 rounded-2xl font-black text-xl uppercase italic text-center ${styles.repique}`;
+    } else {
+        res.innerText = "✅ NÃO É REPIQUE";
+        res.className = `mt-6 p-6 rounded-2xl font-black text-xl uppercase italic text-center ${styles.limpo}`;
+    }
+};
+
+// --- ADMS DE PERFORMANCE (MONITORAMENTO) ---
+async function atualizarStatus() {
+    try {
+        const response = await fetch('equipe.json');
+        const adms = await response.json();
+        const agora = new Date();
+        const hDec = agora.getHours() + (agora.getMinutes() / 60);
+        const container = document.getElementById('lista-adms');
+        container.innerHTML = '';
+
+        adms.forEach(adm => {
+            let status = "Offline", cor = "bg-gray-400";
+            if (hDec >= adm.hEntrada && hDec <= adm.hSaida) {
+                status = (hDec >= adm.iInicio && hDec <= adm.iFim) ? "Intervalo" : "Online";
+                cor = (status === "Online") ? "bg-green-500" : "bg-yellow-500";
+            }
+            
+            const ehDestaque = adm.nome.trim() === funcionarioDoMesGlobal.trim();
+            
+            container.innerHTML += `
+                <div class="flex items-center justify-between p-4 border rounded-3xl transition-all ${ehDestaque ? 'border-gold bg-gold-light' : 'bg-white border-gray-100'}">
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-full ${ehDestaque ? 'bg-yellow-200 text-yellow-700' : 'bg-blue-100 text-blue-hapvida'} flex items-center justify-center font-black text-lg border-2 border-white shadow-sm">
+                                ${adm.nome.charAt(0)}
+                            </div>
+                            <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${cor}"></span>
+                        </div>
+                        <div>
+                            ${ehDestaque ? '<p class="text-[8px] font-black text-yellow-600 uppercase tracking-tighter mb-0.5">🏆 Funcionário do Mês</p>' : ''}
+                            <p class="text-sm font-extrabold ${ehDestaque ? 'text-yellow-800' : 'text-gray-800'} uppercase italic leading-none">${adm.nome}</p>
+                            <p class="text-[9px] uppercase font-bold text-gray-400 italic mt-1">${adm.cargo}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[9px] font-black uppercase text-gray-400 mb-1">${status}</p>
+                        <a href="https://wa.me/${adm.fone}" target="_blank" class="inline-block p-2 bg-green-50 text-green-500 rounded-full hover:bg-green-100 transition-colors">
+                            <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>`;
+        });
+        lucide.createIcons();
+    } catch (e) { console.error(e); }
+}
+
+// --- UTILITÁRIOS ---
 window.exportarPDF = async function() {
     const btn = document.getElementById('btnPDF');
     const content = document.getElementById('resultadoArea').value;
@@ -147,21 +263,13 @@ window.exportarPDF = async function() {
 
     try {
         const { jsPDF } = window.jspdf;
-        
-        // Preenche o template escondido
         document.getElementById('pdf-nome-corretor').innerText = document.getElementById('nomeCorretor').value || "Consultor Hapvida";
         document.getElementById('pdf-tel-corretor').innerText = document.getElementById('telCorretor').value || "";
         document.getElementById('pdf-data-emissao').innerText = `Emitido em: ${new Date().toLocaleDateString('pt-BR')}`;
         document.getElementById('pdf-corpo').innerText = content;
 
         const template = document.getElementById('pdf-template');
-        
-        const canvas = await html2canvas(template, { 
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            backgroundColor: "#ffffff"
-        });
+        const canvas = await html2canvas(template, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
 
         const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF('p', 'mm', 'a4');
@@ -170,84 +278,19 @@ window.exportarPDF = async function() {
         
         pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
         pdf.save(`Cotacao_Supimpa_${new Date().getTime()}.pdf`);
-
     } catch (err) {
-        console.error(err);
-        alert("Erro ao gerar PDF. Tente novamente.");
+        alert("Erro ao gerar PDF.");
     } finally {
         btn.innerText = "BAIXAR PDF";
         btn.disabled = false;
     }
 };
 
-// --- OUTRAS FUNÇÕES ---
 window.copiarTexto = () => {
     navigator.clipboard.writeText(document.getElementById('resultadoArea').value);
     const btn = document.getElementById('btnCopiar'); btn.innerText = "COPIADO!";
     setTimeout(() => btn.innerText = "COPIAR TEXTO", 2000);
 };
-
-window.calcularCarencia = function() {
-    const data = document.getElementById('dataVigencia').value;
-    if(!data) return;
-    const vig = new Date(data + "T12:00:00");
-    const prazos = [
-        { l: "Urgência/Emergência", d: 0 },
-        { l: "Consultas/Exames Simples", d: 30 },
-        { l: "Exames Complexos", d: 90 },
-        { l: "Internações/Cirurgias", d: 180 },
-        { l: "Parto", d: 300 }
-    ];
-    document.getElementById('resultadoCarencia').innerHTML = prazos.map(p => {
-        const dt = new Date(vig); dt.setDate(dt.getDate() + p.d);
-        return `<div class="p-3 bg-gray-50 rounded-xl flex justify-between italic"><span>${p.l}</span><span class="text-blue-hapvida">${dt.toLocaleDateString('pt-BR')}</span></div>`;
-    }).join('');
-};
-
-window.calcularRepique = function() {
-    const ad = new Date(document.getElementById('dataAdesao').value);
-    const ca = new Date(document.getElementById('dataCancelamento').value);
-    const inad = document.getElementById('inadimplente').checked;
-    const res = document.getElementById('resultadoRepique');
-    const meses = (ca.getFullYear() - ad.getFullYear()) * 12 + (ca.getMonth() - ad.getMonth());
-    res.classList.remove('hidden', 'repique-box', 'nao-repique-box');
-    if (meses <= 12 || inad) {
-        res.innerText = "⚠️ É REPIQUE"; res.classList.add('repique-box');
-    } else {
-        res.innerText = "✅ NÃO É REPIQUE"; res.classList.add('nao-repique-box');
-    }
-};
-
-async function atualizarStatus() {
-    try {
-        const response = await fetch('equipe.json');
-        const adms = await response.json();
-        const agora = new Date();
-        const hDec = agora.getHours() + (agora.getMinutes() / 60);
-        const container = document.getElementById('lista-adms');
-        container.innerHTML = '';
-        adms.forEach(adm => {
-            let status = "Offline", cor = "bg-gray-400";
-            if (hDec >= adm.hEntrada && hDec <= adm.hSaida) {
-                status = (hDec >= adm.iInicio && hDec <= adm.iFim) ? "Intervalo" : "Online";
-                cor = (status === "Online") ? "bg-green-500" : "bg-yellow-500";
-            }
-            const ehD = adm.nome.trim() === funcionarioDoMesGlobal.trim();
-            container.innerHTML += `
-                <div class="flex items-center justify-between p-3 border rounded-2xl ${ehD ? 'border-gold border-2 bg-gold-light' : 'bg-white border-gray-100'}">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full ${ehD ? 'bg-yellow-200 text-gold' : 'bg-blue-100 text-blue-hapvida'} flex items-center justify-center font-black">${adm.nome.charAt(0)}</div>
-                        <div><p class="text-sm font-bold ${ehD ? 'text-gold' : 'text-gray-800'}">${adm.nome}</p><p class="text-[9px] uppercase font-bold text-gray-400 italic">${adm.cargo}</p></div>
-                    </div>
-                    <div class="text-right">
-                        <span class="flex items-center gap-1 text-[9px] font-black uppercase"><span class="w-2 h-2 rounded-full ${cor} animate-pulse"></span> ${status}</span>
-                        <a href="https://wa.me/${adm.fone}" target="_blank" class="text-green-500"><i data-lucide="message-circle" class="w-4 h-4"></i></a>
-                    </div>
-                </div>`;
-        });
-        lucide.createIcons();
-    } catch (e) { console.error(e); }
-}
 
 window.salvarConfig = () => {
     if(prompt("Senha Admin:") === "supimpa123") {
