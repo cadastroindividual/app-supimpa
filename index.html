@@ -29,6 +29,15 @@
         .nao-repique-box { background-color: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
         .border-gold { border-color: #ffd700; }
         .bg-gold-light { background-color: #fffdf0; }
+        
+        /* Ajuste crucial para o PDF funcionar */
+        #pdf-export-container {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -40,7 +49,7 @@
             <div class="space-y-4 text-left">
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase ml-2 italic">Usuário</label>
-                    <input type="text" id="login-usuario" placeholder="Ex: rose" class="w-full p-4 bg-gray-100 rounded-2xl outline-none border-2 border-transparent focus:border-blue-hapvida transition-all">
+                    <input type="text" id="login-usuario" placeholder="Ex: rose" class="w-full p-4 bg-gray-100 rounded-2xl outline-none border-2 border-transparent focus:border-blue-hapvida transition-all font-bold">
                 </div>
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase ml-2 italic">Senha</label>
@@ -59,7 +68,6 @@
         </header>
 
         <main class="max-w-5xl mx-auto p-4">
-            
             <section id="tela-menu" class="space-y-6 py-4">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div onclick="abrirTela('tela-cotacao')" class="card-menu p-6 rounded-2xl flex flex-col items-center text-center">
@@ -91,15 +99,15 @@
                 <div class="bg-white p-6 rounded-3xl shadow-lg border-t-8 border-blue-600">
                     <h2 class="text-xl font-black text-center mb-6 uppercase italic">Gerador de Cotação</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="text" id="nomeCorretor" placeholder="Nome do Corretor" class="p-4 bg-gray-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-hapvida transition-all">
-                        <input type="text" id="telCorretor" placeholder="WhatsApp" class="p-4 bg-gray-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-hapvida transition-all">
+                        <input type="text" id="nomeCorretor" placeholder="Nome do Corretor" class="p-4 bg-gray-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-hapvida transition-all font-bold">
+                        <input type="text" id="telCorretor" placeholder="WhatsApp" class="p-4 bg-gray-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-hapvida transition-all font-bold">
                     </div>
                     <div class="mt-4 p-4 bg-blue-50 rounded-2xl flex justify-center gap-6">
                         <label class="flex items-center gap-2 font-bold text-sm"><input type="radio" name="tipoContrato" value="INDIVIDUAL" checked> INDIVIDUAL</label>
                         <label class="flex items-center gap-2 font-bold text-sm"><input type="radio" name="tipoContrato" value="PME"> PME (CNPJ)</label>
                     </div>
                     <div class="mt-4">
-                        <textarea id="idadesInput" oninput="contarVidas()" placeholder="Digite as idades (ex: 25, 30, 2)" class="w-full p-4 bg-gray-50 rounded-2xl h-24 outline-none border-2 border-transparent focus:border-blue-hapvida transition-all"></textarea>
+                        <textarea id="idadesInput" oninput="contarVidas()" placeholder="Digite as idades (ex: 25, 30, 2)" class="w-full p-4 bg-gray-50 rounded-2xl h-24 outline-none border-2 border-transparent focus:border-blue-hapvida transition-all font-bold"></textarea>
                         <p id="contadorVidas" class="text-[10px] font-black text-blue-hapvida mt-1 ml-2 uppercase">0 vidas</p>
                     </div>
                     <div class="grid grid-cols-2 gap-4 mt-4">
@@ -123,7 +131,7 @@
                         <textarea id="resultadoArea" readonly class="w-full p-6 bg-gray-900 text-green-400 font-mono text-xs rounded-3xl h-64 outline-none border-4 border-gray-800"></textarea>
                         <div class="grid grid-cols-2 gap-4 mt-4">
                             <button onclick="copiarTexto()" id="btnCopiar" class="bg-gray-800 text-white py-4 rounded-2xl font-bold text-sm uppercase">Copiar Texto</button>
-                            <button onclick="exportarPDF()" class="bg-red-600 text-white py-4 rounded-2xl font-bold text-sm uppercase">Baixar PDF</button>
+                            <button onclick="exportarPDF()" id="btnPDF" class="bg-red-600 text-white py-4 rounded-2xl font-bold text-sm uppercase">Baixar PDF</button>
                         </div>
                     </div>
                 </div>
@@ -156,13 +164,28 @@
                     </div>
                 </div>
             </section>
-
         </main>
 
         <footer class="text-center py-8 text-gray-400">
             <p class="text-[11px] font-bold uppercase tracking-widest italic">Desenvolvido por Narry ;-)</p>
             <p class="text-[10px] font-black text-red-500 mt-1 uppercase italic">Pra cima deles Flamengoo</p>
         </footer>
+    </div>
+
+    <div id="pdf-export-container">
+        <div id="pdf-template" style="width: 800px; padding: 50px; background: white; font-family: Arial, sans-serif;">
+            <div style="border-bottom: 5px solid #004691; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1 style="color: #004691; margin: 0; font-size: 32px;">COTAÇÃO HAPVIDA</h1>
+                    <p id="pdf-data-emissao" style="color: #666; margin: 5px 0;"></p>
+                </div>
+            </div>
+            <pre id="pdf-corpo" style="white-space: pre-wrap; font-size: 16px; line-height: 1.6; color: #333; font-family: monospace;"></pre>
+            <div style="margin-top: 50px; padding-top: 20px; border-top: 1px solid #eee;">
+                <p id="pdf-nome-corretor" style="font-weight: bold; color: #004691; margin: 0; font-size: 18px;"></p>
+                <p id="pdf-tel-corretor" style="color: #666; margin: 5px 0; font-size: 16px;"></p>
+            </div>
+        </div>
     </div>
 
     <div id="modal-config" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -172,22 +195,6 @@
             <input type="text" id="input-destaque" class="w-full p-4 bg-gray-50 border-2 rounded-2xl mb-4 outline-none font-bold italic">
             <button onclick="salvarConfig()" class="w-full bg-blue-hapvida text-white py-4 rounded-2xl font-black shadow-lg uppercase italic">Salvar na Nuvem</button>
             <button onclick="fecharConfig()" class="w-full mt-4 text-gray-400 text-xs font-bold uppercase italic">Fechar</button>
-        </div>
-    </div>
-
-    <div style="display:none">
-        <div id="pdf-template" style="width: 800px; padding: 50px; background: white; font-family: Arial, sans-serif;">
-            <div style="border-bottom: 5px solid #004691; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h1 style="color: #004691; margin: 0; font-size: 32px;">COTAÇÃO HAPVIDA</h1>
-                    <p id="pdf-data-emissao" style="color: #666; margin: 5px 0;"></p>
-                </div>
-            </div>
-            <pre id="pdf-corpo" style="white-space: pre-wrap; font-size: 16px; line-height: 1.6; color: #333;"></pre>
-            <div style="margin-top: 50px; padding-top: 20px; border-top: 1px solid #eee;">
-                <p id="pdf-nome-corretor" style="font-weight: bold; color: #004691; margin: 0;"></p>
-                <p id="pdf-tel-corretor" style="color: #666; margin: 5px 0;"></p>
-            </div>
         </div>
     </div>
 
