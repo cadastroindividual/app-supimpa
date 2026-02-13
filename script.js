@@ -2,8 +2,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-// 2. SUAS CONFIGURAÇÕES (Substitua pelos dados que você copiou no Passo 2)
-cconst firebaseConfig = {
+// 2. CONFIGURAÇÕES CORRIGIDAS
+const firebaseConfig = {
   apiKey: "AIzaSyB69yq8gyn_hDn2Cbbhb1wwIpzvQp_dkwA",
   authDomain: "app-supimpa.firebaseapp.com",
   databaseURL: "https://app-supimpa-default-rtdb.firebaseio.com",
@@ -19,15 +19,14 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const destaqueRef = ref(db, 'config/funcionarioDoMes');
 
-let funcionarioDoMesGlobal = "Narry"; // Valor padrão inicial
+let funcionarioDoMesGlobal = "Narry";
 
 // 3. ESCUTA EM TEMPO REAL
-// Sempre que você mudar no banco, todos os apps atualizam na hora
 onValue(destaqueRef, (snapshot) => {
     const data = snapshot.val();
     if (data) {
         funcionarioDoMesGlobal = data;
-        atualizarStatus(); // Recarrega a lista com o novo brilho
+        atualizarStatus();
     }
 });
 
@@ -78,15 +77,15 @@ async function atualizarStatus() {
     } catch (e) { console.error("Erro ao carregar equipe:", e); }
 }
 
-// 5. FUNÇÃO DE SALVAR (RESTRITA COM SENHA)
+// 5. FUNÇÕES GLOBAIS (SENHA: supimpa123)
 window.salvarConfig = function() {
     const senha = prompt("Senha de Administrador:");
     if (senha === "supimpa123") {
         const novoDestaque = document.getElementById('input-destaque').value.trim();
         if (novoDestaque) {
-            set(destaqueRef, novoDestaque) // Envia para a nuvem!
+            set(destaqueRef, novoDestaque)
                 .then(() => {
-                    alert("Destaque atualizado para toda a equipe! 🚀");
+                    alert("Destaque atualizado na nuvem! 🚀");
                     fecharConfig();
                 })
                 .catch((error) => alert("Erro ao salvar: " + error));
@@ -96,16 +95,17 @@ window.salvarConfig = function() {
     }
 }
 
-// Funções de navegação e UI continuam iguais...
 window.abrirTela = (id) => {
     document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
 };
+
 window.abrirConfig = () => {
     document.getElementById('input-destaque').value = funcionarioDoMesGlobal;
     document.getElementById('modal-config').classList.remove('hidden');
     lucide.createIcons();
 };
+
 window.fecharConfig = () => document.getElementById('modal-config').classList.add('hidden');
 
 // Inicialização
