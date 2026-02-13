@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>App Supimpa 1.3</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0054a6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -19,102 +25,114 @@
         .card-menu:active { transform: scale(0.95); }
         .card-menu:hover { border-bottom: 4px solid var(--hapvida-orange); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
         .hidden { display: none; }
-        .repique-box { background-color: #ffdce0; color: #d32f2f; border: 2px solid #ffb3b3; }
-        .nao-repique-box { background-color: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <header class="bg-blue-hapvida text-white py-6 px-4 shadow-lg text-center">
-        <h1 class="text-2xl font-extrabold tracking-tight italic">App Supimpa v1.3</h1>
-        <p class="text-blue-100 text-sm opacity-80">Central de Inteligência Backoffice</p>
-    </header>
-
-    <main class="flex-1 max-w-5xl mx-auto w-full p-4">
-        <section id="tela-menu" class="space-y-8 py-4">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div onclick="abrirTela('tela-cotacao')" class="card-menu p-6 rounded-2xl shadow-sm flex flex-col items-center text-center">
-                    <div class="bg-blue-50 p-3 rounded-full mb-3"><i data-lucide="calculator" class="text-blue-hapvida"></i></div>
-                    <span class="text-xs font-bold uppercase">Cotação</span>
+    <section id="tela-login" class="min-h-screen flex items-center justify-center p-4 bg-blue-hapvida">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-8 shadow-2xl text-center">
+            <h1 class="text-2xl font-extrabold italic text-blue-hapvida mb-2">App Supimpa</h1>
+            <p class="text-gray-400 text-sm mb-8 font-bold uppercase tracking-widest">Acesso Restrito</p>
+            
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="text-xs font-black text-gray-400 uppercase ml-2">Usuário</label>
+                    <input type="text" id="login-usuario" placeholder="Ex: narry" class="w-full p-4 bg-gray-100 rounded-2xl outline-none border-2 border-transparent focus:border-blue-hapvida transition-all">
                 </div>
-                <div onclick="abrirTela('tela-repique')" class="card-menu p-6 rounded-2xl shadow-sm flex flex-col items-center text-center">
-                    <div class="bg-red-50 p-3 rounded-full mb-3"><i data-lucide="history" class="text-red-600"></i></div>
-                    <span class="text-xs font-bold uppercase">Repique</span>
+                <div>
+                    <label class="text-xs font-black text-gray-400 uppercase ml-2">Senha</label>
+                    <input type="password" id="login-senha" placeholder="••••••" class="w-full p-4 bg-gray-100 rounded-2xl outline-none border-2 border-transparent focus:border-blue-hapvida transition-all">
                 </div>
-                <div onclick="abrirTela('tela-carencia')" class="card-menu p-6 rounded-2xl shadow-sm flex flex-col items-center text-center">
-                    <div class="bg-green-50 p-3 rounded-full mb-3"><i data-lucide="shield-check" class="text-green-600"></i></div>
-                    <span class="text-xs font-bold uppercase">Carência</span>
+                <button onclick="fazerLogin()" class="w-full bg-blue-hapvida text-white py-5 rounded-2xl font-black text-lg shadow-lg hover:bg-blue-700 transition-all">ENTRAR</button>
+            </div>
+        </div>
+    </section>
+
+    <div id="conteudo-app" class="hidden flex-1 flex flex-col">
+        <header class="bg-blue-hapvida text-white py-6 px-4 shadow-lg text-center relative">
+            <button onclick="fazerLogout()" class="absolute right-4 top-7 text-blue-200"><i data-lucide="log-out" class="w-5 h-5"></i></button>
+            <h1 class="text-2xl font-extrabold tracking-tight italic">App Supimpa v1.3</h1>
+            <p class="text-blue-100 text-sm opacity-80">Central de Inteligência Backoffice</p>
+        </header>
+
+        <main class="flex-1 max-w-5xl mx-auto w-full p-4">
+            <section id="tela-menu" class="space-y-8 py-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div onclick="abrirTela('tela-cotacao')" class="card-menu p-6 rounded-2xl shadow-sm flex flex-col items-center text-center">
+                        <div class="bg-blue-50 p-3 rounded-full mb-3"><i data-lucide="calculator" class="text-blue-hapvida"></i></div>
+                        <span class="text-xs font-bold uppercase">Cotação</span>
+                    </div>
+                    <div onclick="abrirTela('tela-repique')" class="card-menu p-6 rounded-2xl shadow-sm flex flex-col items-center text-center">
+                        <div class="bg-red-50 p-3 rounded-full mb-3"><i data-lucide="history" class="text-red-600"></i></div>
+                        <span class="text-xs font-bold uppercase">Repique</span>
+                    </div>
+                    <div onclick="abrirTela('tela-carencia')" class="card-menu p-6 rounded-2xl shadow-sm flex flex-col items-center text-center">
+                        <div class="bg-green-50 p-3 rounded-full mb-3"><i data-lucide="shield-check" class="text-green-600"></i></div>
+                        <span class="text-xs font-bold uppercase">Carência</span>
+                    </div>
+                    <div onclick="abrirConfig()" class="card-menu p-6 rounded-2xl shadow-sm flex flex-col items-center text-center">
+                        <div class="bg-gray-100 p-3 rounded-full mb-3"><i data-lucide="lock" class="text-gray-400"></i></div>
+                        <span class="text-xs font-bold uppercase tracking-widest text-gray-400">Admin</span>
+                    </div>
                 </div>
-                <div onclick="abrirConfig()" class="card-menu p-6 rounded-2xl shadow-sm flex flex-col items-center text-center">
-                    <div class="bg-gray-100 p-3 rounded-full mb-3"><i data-lucide="lock" class="text-gray-400"></i></div>
-                    <span class="text-xs font-bold uppercase tracking-widest text-gray-400">Admin</span>
+
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-blue-hapvida mb-4 flex items-center gap-2"><i data-lucide="users"></i> Monitoramento</h3>
+                    <div id="lista-adms" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
-            </div>
+            </section>
 
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-                <h3 class="font-bold text-blue-hapvida mb-4 flex items-center gap-2"><i data-lucide="users"></i> Monitoramento</h3>
-                <div id="lista-adms" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-            </div>
-        </section>
-
-        <section id="tela-carencia" class="hidden py-4">
-            <button onclick="abrirTela('tela-menu')" class="mb-6 flex items-center gap-2 text-blue-hapvida font-bold">
-                <i data-lucide="chevron-left"></i> VOLTAR
-            </button>
-            <div class="bg-white p-6 rounded-3xl shadow-lg border-t-8 border-green-600 max-w-xl mx-auto">
-                <h2 class="text-xl font-black text-center mb-4 italic">Calculadora de Carência</h2>
-                <input type="date" id="dataVigencia" onchange="calcularCarencia()" class="w-full p-4 border-2 rounded-2xl mb-6 outline-none">
-                <div id="resultadoCarencia" class="space-y-3"></div>
-            </div>
-        </section>
-
-        <section id="tela-repique" class="hidden py-4 text-center">
-            <button onclick="abrirTela('tela-menu')" class="mb-6 flex items-center gap-2 text-blue-hapvida font-bold mx-auto">
-                <i data-lucide="chevron-left"></i> VOLTAR
-            </button>
-            <div class="bg-white p-8 rounded-3xl shadow-lg max-w-md mx-auto border-t-8 border-red-600">
-                <h2 class="text-2xl font-black mb-6">Análise de Repique</h2>
-                <div class="space-y-4 text-left">
-                    <input type="date" id="dataAdesao" class="w-full p-4 border-2 rounded-2xl outline-none">
-                    <input type="date" id="dataCancelamento" class="w-full p-4 border-2 rounded-2xl outline-none">
-                    <label class="flex items-center gap-3 bg-gray-50 p-4 rounded-2xl">
-                        <input type="checkbox" id="inadimplente" class="w-6 h-6 accent-red-600"> 
-                        <span class="font-bold text-sm">Inadimplente?</span>
-                    </label>
-                    <button onclick="calcularRepique()" class="w-full bg-red-600 text-white py-5 rounded-2xl font-black text-lg shadow-lg">VERIFICAR</button>
-                    <div id="resultadoRepique" class="mt-6 p-6 rounded-2xl font-black hidden text-xl uppercase"></div>
+            <section id="tela-carencia" class="hidden py-4">
+                <button onclick="abrirTela('tela-menu')" class="mb-6 flex items-center gap-2 text-blue-hapvida font-bold"><i data-lucide="chevron-left"></i> VOLTAR</button>
+                <div class="bg-white p-6 rounded-3xl shadow-lg border-t-8 border-green-600 max-w-xl mx-auto italic">
+                    <h2 class="text-xl font-black text-center mb-4">Calculadora de Carência</h2>
+                    <input type="date" id="dataVigencia" onchange="calcularCarencia()" class="w-full p-4 border-2 rounded-2xl mb-6 outline-none">
+                    <div id="resultadoCarencia" class="space-y-3"></div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section id="tela-cotacao" class="hidden py-4 text-center">
-            <button onclick="abrirTela('tela-menu')" class="mb-6 flex items-center gap-2 text-blue-hapvida font-bold">
-                <i data-lucide="chevron-left"></i> VOLTAR
-            </button>
-            <div class="bg-white p-10 rounded-3xl shadow-md border-t-8 border-blue-600 italic">
-                <i data-lucide="construction" class="mx-auto w-12 h-12 mb-4 text-blue-600"></i>
-                <h2 class="text-2xl font-black">Cotação em breve...</h2>
-            </div>
-        </section>
-    </main>
+            <section id="tela-repique" class="hidden py-4 text-center">
+                <button onclick="abrirTela('tela-menu')" class="mb-6 flex items-center gap-2 text-blue-hapvida font-bold mx-auto"><i data-lucide="chevron-left"></i> VOLTAR</button>
+                <div class="bg-white p-8 rounded-3xl shadow-lg max-w-md mx-auto border-t-8 border-red-600">
+                    <h2 class="text-2xl font-black mb-6 italic">Análise de Repique</h2>
+                    <div class="space-y-4 text-left">
+                        <input type="date" id="dataAdesao" class="w-full p-4 border-2 rounded-2xl outline-none">
+                        <input type="date" id="dataCancelamento" class="w-full p-4 border-2 rounded-2xl outline-none">
+                        <label class="flex items-center gap-3 bg-gray-50 p-4 rounded-2xl">
+                            <input type="checkbox" id="inadimplente" class="w-6 h-6 accent-red-600"> 
+                            <span class="font-bold text-sm">Inadimplente?</span>
+                        </label>
+                        <button onclick="calcularRepique()" class="w-full bg-red-600 text-white py-5 rounded-2xl font-black text-lg shadow-lg">VERIFICAR</button>
+                        <div id="resultadoRepique" class="mt-6 p-6 rounded-2xl font-black hidden text-xl uppercase text-center"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tela-cotacao" class="hidden py-4 text-center">
+                <button onclick="abrirTela('tela-menu')" class="mb-6 flex items-center gap-2 text-blue-hapvida font-bold"><i data-lucide="chevron-left"></i> VOLTAR</button>
+                <div class="bg-white p-10 rounded-3xl shadow-md border-t-8 border-blue-600 italic">
+                    <i data-lucide="construction" class="mx-auto w-12 h-12 mb-4 text-blue-600"></i>
+                    <h2 class="text-2xl font-black">Cotação em breve...</h2>
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center py-8 text-gray-400">
+            <p class="text-[11px] font-bold uppercase tracking-widest">Desenvolvido por Narry ;-)</p>
+            <p class="text-[10px] font-black text-red-500 mt-1 uppercase italic">Pra cima deles Flamengoo</p>
+        </footer>
+    </div>
 
     <div id="modal-config" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-6 text-center">
             <h3 class="text-xl font-bold mb-6 text-blue-hapvida">Ajustes Admin</h3>
-            <label class="block text-xs font-bold text-gray-400 mb-1">Funcionário do Mês:</label>
+            <label class="block text-xs font-bold text-gray-400 mb-1 text-left ml-2 uppercase">Funcionário do Mês:</label>
             <input type="text" id="input-destaque" class="w-full p-4 bg-gray-50 border-2 rounded-2xl mb-4 outline-none">
             <button onclick="salvarConfig()" class="w-full bg-blue-hapvida text-white py-4 rounded-2xl font-bold shadow-lg">SALVAR</button>
             <button onclick="fecharConfig()" class="w-full mt-2 text-gray-400 text-sm font-bold">FECHAR</button>
         </div>
     </div>
 
-    <footer class="text-center py-8 text-gray-400">
-        <p class="text-[11px] font-bold uppercase tracking-widest">Desenvolvido por Narry ;-)</p>
-        <p class="text-[10px] font-black text-red-500 mt-1 uppercase italic">Pra cima deles Flamengoo</p>
-    </footer>
-
     <script type="module" src="script.js"></script>
 </body>
-
 </html>
-
