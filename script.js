@@ -984,7 +984,6 @@ function adicionarMsgUsuario(msg) {
 
 // ==================== FERRAMENTAS ====================
 window.abrirCotacao = async () => {
-    // ==================== FUNÇÕES DA COTAÇÃO ====================
 const tabelaPrecosCotacao = {
     "PME": {
         "NOSSO MÉDICO": {
@@ -1927,5 +1926,6 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
