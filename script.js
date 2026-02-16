@@ -11,6 +11,10 @@ const firebaseConfig = {
     appId: "1:865217946023:web:da6b0ea582d863ecd4d682"
 };
 
+
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+
+
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
@@ -962,3 +966,4 @@ if (sessao) {
     currentUser = JSON.parse(sessao);
     init();
 }
+
