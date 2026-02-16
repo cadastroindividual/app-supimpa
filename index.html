@@ -188,11 +188,12 @@
     <!-- Tela de Login -->
     <section id="tela-login" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-blue-400/20 backdrop-blur-3xl">
         <div class="glass-card w-full max-w-md p-10 text-center space-y-6">
-            <h2 class="text-3xl font-black italic drop-shadow-sm">Faça o login para continuar</h2>
+            <h2 class="text-3xl font-black italic drop-shadow-sm">Faça o login para continuar meu lindo</h2>
             <div class="space-y-4">
-                <input type="text" id="login-user" placeholder="Usuário" class="w-full p-4 rounded-2xl glass-card outline-none font-bold">
+                <input type="text" id="login-user" placeholder="Email ou usuário" class="w-full p-4 rounded-2xl glass-card outline-none font-bold">
                 <input type="password" id="login-pass" placeholder="Senha" class="w-full p-4 rounded-2xl glass-card outline-none font-bold">
                 <button onclick="realizarLogin()" class="glossy w-full bg-blue-600 text-white font-black py-4 rounded-2xl hover:scale-105 transition-all">ENTRAR</button>
+                <button onclick="esqueceuSenha()" class="w-full text-xs font-bold opacity-70 hover:opacity-100 transition-all">Esqueceu a senha?</button>
             </div>
         </div>
     </section>
@@ -263,7 +264,7 @@
             <!-- Ranking do Mês -->
             <div class="glass-card p-5">
                 <h3 class="font-black mb-4 flex items-center gap-2 text-[10px] uppercase italic">
-                    <i data-lucide="trophy" class="text-yellow-500"></i> Ranking do Mês
+                    <i data-lucide="trophy" class="text-yellow-500"></i> Ranking dos ADMs
                 </h3>
                 <div id="lista-equipe" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
             </div>
