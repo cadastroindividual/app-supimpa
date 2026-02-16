@@ -76,10 +76,13 @@ async function buscarDadosUsuarioPorEmail(email) {
 }
 
 window.realizarLogin = async () => {
-    let email = document.getElementById('login-user').value.trim();
+    let email = document.getElementById('login-user').value.trim().toLowerCase();
     const senha = document.getElementById('login-pass').value;
     if (!email || !senha) return mostrarToast('Preencha os campos', 'warning');
     if (!email.includes('@')) email += '@lider-saude.com';
+    if (!email.includes('@')) email += '@lider-saude.com';
+email = email.toLowerCase();
+
     
     try {
         const cred = await signInWithEmailAndPassword(auth, email, senha);
@@ -1926,6 +1929,7 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
 
