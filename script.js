@@ -25,6 +25,33 @@ let equipeData = [];
 let mensagensNaoLidas = {};
 let reacoesUsuario = {};
 
+window.resetarXP = async () => {
+    if (!confirm("Tem certeza que deseja zerar o XP de TODOS os funcionários?")) return;
+
+    try {
+        const snap = await get(ref(db, 'users'));
+        const updates = {};
+
+        snap.forEach(child => {
+            updates[`users/${child.key}/xp`] = 0;
+        });
+
+        await update(ref(db), updates);
+
+        // Atualiza XP do admin logado na navbar
+        const navXp = document.getElementById('nav-xp');
+        if (navXp) navXp.textContent = `0 XP`;
+
+        mostrarToast("🔥 Ranking resetado com sucesso!", "success");
+
+    } catch (e) {
+        console.error(e);
+        mostrarToast("Erro ao resetar ranking", "error");
+    }
+};
+
+
+
 const ADMINS = ["Narry", "Cleide Tavares"];
 
 const BADGES = {
@@ -874,12 +901,23 @@ window.removerScript = async (id) => {
 window.abrirCalendario = () => {
     const ehAdmin = ADMINS.includes(currentUser.nome);
     const modal = criarModal('📅 Calendário', `
-        ${ehAdmin ? '<button onclick="criarEvento()" class="w-full glossy bg-green-600 text-white py-3 rounded-xl font-bold mb-4">📅 Novo Evento</button>' : ''}
+        ${ehAdmin ? `
+            <button onclick="criarEvento()" 
+                class="w-full glossy bg-green-600 text-white py-3 rounded-xl font-bold mb-3">
+                📅 Novo Evento
+            </button>
+
+            <button onclick="resetarXP()" 
+                class="w-full glossy bg-red-600 text-white py-3 rounded-xl font-bold mb-4">
+                🔥 Resetar Ranking Geral
+            </button>
+        ` : ''}
+
         <div id="eventos-lista" class="space-y-3"></div>
     `);
+
     carregarEventos();
 };
-
 async function carregarEventos() {
     const snap = await get(ref(db, 'eventos'));
     const lista = document.getElementById('eventos-lista');
@@ -1921,6 +1959,7 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
 
