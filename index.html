@@ -7,8 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root { --glass: rgba(255, 255, 255, 0.45); }
         body { 
@@ -25,16 +23,12 @@
             background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 24px;
         }
-        
-        /* BADGE LENDÁRIO NA HOME */
         .badge-lendario {
             width: 18px; height: 18px; background: linear-gradient(45deg, #ffd700, #fff, #ffd700);
             border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
             box-shadow: 0 0 8px #ffd700; animation: shine 2s infinite linear; border: 1px solid white;
         }
         @keyframes shine { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.4); } }
-
-        /* FUNCIONÁRIO DO MÊS DOURADO */
         .gold-card { position: relative; padding: 2px; overflow: hidden; border-radius: 24px; z-index: 1; }
         .gold-card::before {
             content: ''; position: absolute; z-index: -1; left: -50%; top: -50%; width: 200%; height: 200%;
@@ -42,14 +36,8 @@
         }
         .gold-inner { background: rgba(255, 254, 235, 0.95); border-radius: 22px; height: 100%; width: 100%; padding: 1rem; }
         @keyframes rotate { 100% { transform: rotate(360deg); } }
-
-        /* CHAT & NOTIFICAÇÕES */
-        .chat-unread { background: rgba(34, 197, 94, 0.2) !important; border: 2px solid #22c55e !important; }
-        .notif-dot { position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; border: 2px solid white; }
         .hidden { display: none !important; }
-
-        /* VIDEO PLAYER AERO */
-        video { border-radius: 15px; background: black; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        video.feed-video { border-radius: 18px; border: 2px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 25px rgba(0,0,0,0.2); background: #000; margin-top: 10px; }
     </style>
 </head>
 <body class="flex flex-col">
@@ -66,13 +54,7 @@
     </section>
 
     <header id="main-header" class="hidden glossy bg-[#0054a6] text-white py-3 px-6 flex justify-between items-center sticky top-0 z-40">
-        <div class="flex items-center gap-4">
-            <h1 class="text-xl font-black italic tracking-tighter">SUPIMPA 1.6</h1>
-            <div class="relative cursor-pointer" onclick="abrirTela('tela-notificacoes')">
-                <i data-lucide="bell" class="w-5 h-5"></i>
-                <div id="sininho-dot" class="notif-dot hidden"></div>
-            </div>
-        </div>
+        <h1 class="text-xl font-black italic tracking-tighter">SUPIMPA 1.6</h1>
         <div class="flex items-center gap-3 cursor-pointer" onclick="abrirTela('tela-perfil')">
             <div class="text-right hidden sm:block">
                 <p id="nav-nome" class="text-[11px] font-black leading-none"></p>
@@ -82,43 +64,36 @@
         </div>
     </header>
 
-    <main id="main-content" class="hidden flex-1 p-4 max-w-6xl mx-auto w-full space-y-6">
-        
+    <main id="main-content" class="hidden flex-1 p-4 max-w-5xl mx-auto w-full space-y-6">
         <section id="tela-menu" class="space-y-6">
-            <div class="grid grid-cols-2 md:grid-cols-6 gap-3 text-center uppercase text-[9px] font-black">
-                <div onclick="abrirTela('tela-feed')" class="glass-card p-4 hover:translate-y-[-2px] transition-all cursor-pointer">
-                    <i data-lucide="layout" class="mx-auto mb-2 text-purple-600"></i> Feed
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center uppercase text-[9px] font-black">
+                <div onclick="abrirTela('tela-feed')" class="glass-card p-6 cursor-pointer hover:scale-105 transition-all">
+                    <i data-lucide="layout" class="mx-auto mb-2 text-purple-600"></i> Feed Social
                 </div>
-                <div onclick="abrirTela('tela-cotacao')" class="glass-card p-4 hover:translate-y-[-2px] transition-all cursor-pointer">
+                <div onclick="abrirTela('tela-cotacao')" class="glass-card p-6 cursor-pointer hover:scale-105 transition-all">
                     <i data-lucide="calculator" class="mx-auto mb-2 text-blue-600"></i> Cotação
                 </div>
-                <div onclick="abrirTela('tela-anotacoes')" class="glass-card p-4 hover:translate-y-[-2px] transition-all cursor-pointer">
-                    <i data-lucide="pen-tool" class="mx-auto mb-2 text-yellow-600"></i> Notas
-                </div>
-                <div onclick="abrirTela('tela-carencia')" class="glass-card p-4 hover:translate-y-[-2px] transition-all cursor-pointer">
+                <div onclick="abrirTela('tela-carencia')" class="glass-card p-6 cursor-pointer hover:scale-105 transition-all">
                     <i data-lucide="shield-check" class="mx-auto mb-2 text-green-600"></i> Carência
                 </div>
-                <div onclick="abrirTela('tela-repique')" class="glass-card p-4 hover:translate-y-[-2px] transition-all cursor-pointer">
-                    <i data-lucide="refresh-cw" class="mx-auto mb-2 text-red-600"></i> Repique
-                </div>
-                <div onclick="tentarAcessoAdmin()" class="glass-card p-4 hover:translate-y-[-2px] transition-all cursor-pointer">
+                <div onclick="tentarAcessoAdmin()" class="glass-card p-6 cursor-pointer hover:scale-105 transition-all">
                     <i data-lucide="lock" class="mx-auto mb-2 text-gray-700"></i> Admin
                 </div>
             </div>
 
             <div class="glass-card p-6">
-                <h3 class="font-black text-blue-900 mb-4 flex items-center gap-2 text-xs uppercase"><i data-lucide="users"></i> ADMs Conectados</h3>
-                <div id="lista-equipe" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                <h3 class="font-black text-blue-900 mb-4 flex items-center gap-2 text-xs uppercase italic"><i data-lucide="users"></i> Equipe Online</h3>
+                <div id="lista-equipe" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
         </section>
 
         <section id="tela-feed" class="hidden max-w-xl mx-auto space-y-6">
-            <button onclick="abrirTela('tela-menu')" class="glass-card px-4 py-2 font-black text-[10px] flex items-center gap-2"><i data-lucide="arrow-left" class="w-3 h-3"></i> VOLTAR</button>
+            <button onclick="abrirTela('tela-menu')" class="glass-card px-4 py-2 font-black text-[10px]"><i data-lucide="arrow-left" class="inline w-3 h-3"></i> VOLTAR</button>
             <div class="glass-card p-6 space-y-4">
-                <textarea id="feed-text" class="w-full bg-white/40 p-4 rounded-2xl outline-none text-sm font-medium" placeholder="No que você está pensando?"></textarea>
+                <textarea id="feed-text" class="w-full bg-white/40 p-4 rounded-2xl outline-none text-sm font-medium" placeholder="O que está rolando?"></textarea>
                 <div class="flex justify-between items-center">
                     <label class="cursor-pointer text-[10px] font-black text-blue-600 flex items-center gap-2">
-                        <i data-lucide="clapperboard"></i> FOTO OU VÍDEO
+                        <i data-lucide="clapperboard"></i> MÍDIA (FOTO/VÍDEO)
                         <input type="file" id="feed-file" class="hidden" accept="image/*,video/*">
                     </label>
                     <button onclick="postarFeed()" class="glossy bg-blue-600 text-white px-6 py-2 rounded-xl font-black text-xs uppercase">Postar</button>
@@ -127,62 +102,38 @@
             <div id="feed-posts" class="space-y-6 pb-20"></div>
         </section>
 
-        <section id="tela-perfil" class="hidden max-w-md mx-auto py-6">
+        <section id="tela-perfil" class="hidden max-w-md mx-auto">
             <div class="glass-card p-8 text-center space-y-4">
-                <div class="relative inline-block">
-                    <img id="perfil-foto" src="" class="w-32 h-32 rounded-full border-4 border-white shadow-2xl object-cover">
-                    <label for="up-foto" class="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full cursor-pointer"><i data-lucide="camera" class="w-4 h-4"></i></label>
-                    <input type="file" id="up-foto" class="hidden" onchange="uploadFoto()">
-                </div>
+                <img id="perfil-foto" src="" class="w-32 h-32 mx-auto rounded-full border-4 border-white shadow-2xl object-cover">
                 <h2 id="perfil-nome" class="text-2xl font-black text-blue-900"></h2>
                 <div id="perfil-badges" class="flex flex-wrap justify-center gap-2"></div>
-                <select id="status-select" onchange="mudarStatus()" class="w-full p-3 glass-card text-xs font-bold outline-none mt-4">
-                    <option value="Online">🟢 Disponível</option>
-                    <option value="Intervalo">🟡 Em Intervalo</option>
-                    <option value="Ocupado">🔴 Ocupado / Fone</option>
-                    <option value="Ausente">⚪ Ausente</option>
-                </select>
-                <button onclick="logout()" class="text-red-500 font-black text-[10px] uppercase mt-6 block w-full text-center">Encerrar Sessão</button>
-                <button onclick="abrirTela('tela-menu')" class="text-gray-400 font-black text-[10px] uppercase mt-2">Voltar</button>
+                <button onclick="logout()" class="text-red-500 font-black text-[10px] uppercase mt-6 block w-full">Encerrar Sessão</button>
+                <button onclick="abrirTela('tela-menu')" class="text-gray-400 font-black text-[10px] uppercase">Voltar</button>
             </div>
         </section>
+    </main>
 
-        <section id="tela-chat" class="hidden fixed inset-0 z-50 bg-[#e5ddd5] flex flex-col">
-            <header class="glossy bg-blue-600 p-4 text-white flex items-center gap-4">
-                <button onclick="abrirTela('tela-menu')"><i data-lucide="chevron-left"></i></button>
-                <img id="chat-img" src="" class="w-10 h-10 rounded-full object-cover border-2 border-white">
-                <p id="chat-nome" class="font-black text-sm"></p>
-            </header>
-            <div id="chat-box" class="flex-1 overflow-y-auto p-4 flex flex-col space-y-2"></div>
-            <div class="p-4 bg-white/90 backdrop-blur-md flex gap-2">
-                <input type="text" id="chat-in" class="flex-1 p-3 rounded-full border outline-none text-sm" placeholder="Mensagem...">
-                <button onclick="enviarMsg()" class="bg-blue-600 text-white p-3 rounded-full"><i data-lucide="send" class="w-5 h-5"></i></button>
+    <div id="modal-admin" class="hidden fixed inset-0 bg-blue-900/40 backdrop-blur-xl z-[60] flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-lg p-8 space-y-6">
+            <h3 class="text-2xl font-black text-blue-900 italic">Painel Admin</h3>
+            <div>
+                <label class="text-[10px] font-black uppercase text-blue-700">Destaque do Mês:</label>
+                <input type="text" id="input-mes" class="w-full p-4 glass-card mt-1 font-bold outline-none">
             </div>
-        </section>
-
-        <div id="modal-admin" class="hidden fixed inset-0 bg-blue-900/40 backdrop-blur-xl z-[60] flex items-center justify-center p-4">
-            <div class="glass-card w-full max-w-lg p-8 space-y-6">
-                <h3 class="text-2xl font-black text-blue-900">Painel Gerencial</h3>
-                <div>
-                    <label class="text-[10px] font-black uppercase text-blue-700">Funcionário do Mês:</label>
-                    <input type="text" id="input-mes" class="w-full p-4 glass-card mt-1 font-bold outline-none">
+            <div>
+                <label class="text-[10px] font-black uppercase text-blue-700">Dar Conquista:</label>
+                <div class="flex gap-2 mt-1">
+                    <select id="adm-alvo" class="flex-1 p-3 glass-card text-xs font-bold"></select>
+                    <select id="adm-selo" class="flex-1 p-3 glass-card text-xs font-bold"></select>
+                    <button onclick="darSelo()" class="bg-blue-600 text-white px-4 rounded-xl font-bold">OK</button>
                 </div>
-                <div>
-                    <label class="text-[10px] font-black uppercase text-blue-700">Atribuir Conquista:</label>
-                    <div class="flex gap-2 mt-1">
-                        <select id="adm-alvo" class="flex-1 p-3 glass-card text-xs font-bold"></select>
-                        <select id="adm-selo" class="flex-1 p-3 glass-card text-xs font-bold"></select>
-                        <button onclick="darSelo()" class="bg-blue-600 text-white px-4 rounded-xl font-bold">DAR</button>
-                    </div>
-                </div>
-                <div class="flex gap-2 pt-4">
-                    <button onclick="salvarAdmin()" class="flex-1 glossy bg-blue-600 text-white py-4 rounded-2xl font-bold">SALVAR</button>
-                    <button onclick="fecharAdmin()" class="px-6 font-bold text-gray-500">SAIR</button>
-                </div>
+            </div>
+            <div class="flex gap-2 pt-4">
+                <button onclick="salvarAdmin()" class="flex-1 glossy bg-blue-600 text-white py-4 rounded-2xl font-bold">SALVAR</button>
+                <button onclick="document.getElementById('modal-admin').classList.add('hidden')" class="px-6 font-bold text-gray-500">FECHAR</button>
             </div>
         </div>
-
-    </main>
+    </div>
 
     <script type="module" src="script.js"></script>
 </body>
