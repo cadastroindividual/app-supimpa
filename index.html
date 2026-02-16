@@ -3,118 +3,383 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S.O. SUPIMPA 2.0 - EDIÇÃO FRUTIGER AERO</title>
+    <title>S.O. SUPIMPA 3.0 - EDIÇÃO FRUTIGER AERO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        :root { --glass: rgba(255, 255, 255, 0.45); }
+        :root { 
+            --glass: rgba(255, 255, 255, 0.45);
+            --bg-primary: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 50%, #d1f2fb 100%);
+            --text-primary: #0b2e4d;
+            --card-bg: rgba(255, 255, 255, 0.45);
+        }
+        
+        [data-theme="dark"] {
+            --glass: rgba(30, 41, 59, 0.6);
+            --bg-primary: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            --text-primary: #e2e8f0;
+            --card-bg: rgba(30, 41, 59, 0.6);
+        }
+        
         body { 
             font-family: 'Inter', sans-serif; 
-            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 50%, #d1f2fb 100%);
-            background-attachment: fixed; color: #0b2e4d; min-height: 100vh;
+            background: var(--bg-primary);
+            background-attachment: fixed; 
+            color: var(--text-primary); 
+            min-height: 100vh;
+            transition: all 0.3s ease;
         }
+        
         .glossy {
             background: linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.1) 50%, rgba(0,0,0,0.05) 100%);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 15px rgba(0,0,0,0.1);
             border: 1px solid rgba(255,255,255,0.5);
+            transition: all 0.3s ease;
         }
+        
         .glass-card {
-            background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 24px;
+            background: var(--card-bg); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3); 
+            border-radius: 24px;
+            transition: all 0.3s ease;
         }
-        @keyframes glow-gold { 0%, 100% { box-shadow: 0 0 15px #ffd700; border-color: #ffd700; } 50% { box-shadow: 0 0 30px #ffd700; border-color: #fff; } }
-        .card-f-mes { animation: glow-gold 2s infinite; border: 3px solid #ffd700 !important; background: rgba(255, 215, 0, 0.15) !important; }
-        .welcome-msg { font-size: 10px; opacity: 0.9; font-weight: 800; text-transform: uppercase; }
+        
+        [data-theme="dark"] .glass-card {
+            border-color: rgba(100, 116, 139, 0.3);
+        }
+        
+        @keyframes glow-gold { 
+            0%, 100% { box-shadow: 0 0 15px #ffd700; border-color: #ffd700; } 
+            50% { box-shadow: 0 0 30px #ffd700; border-color: #fff; } 
+        }
+        
+        .card-f-mes { 
+            animation: glow-gold 2s infinite; 
+            border: 3px solid #ffd700 !important; 
+            background: rgba(255, 215, 0, 0.15) !important; 
+        }
+        
+        .welcome-msg { 
+            font-size: 10px; 
+            opacity: 0.9; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+        }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* Notificações */
+        .notif-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 999px;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: 800;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        /* Reações */
+        .reaction-btn {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .reaction-btn:hover {
+            transform: scale(1.2);
+        }
+        
+        .reaction-btn.active {
+            animation: bounce 0.5s;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+        
+        /* Badge animations */
+        .badge-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .badge-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        /* Chat bubble */
+        .chat-bubble {
+            max-width: 70%;
+            word-wrap: break-word;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Theme toggle */
+        .theme-toggle {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 999px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        [data-theme="dark"] .theme-toggle {
+            background: rgba(100,116,139,0.5);
+        }
+        
+        [data-theme="dark"] .theme-toggle-slider {
+            left: 33px;
+            background: #1e293b;
+        }
+        
+        /* Mention autocomplete */
+        .mention-popup {
+            position: absolute;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        
+        [data-theme="dark"] .mention-popup {
+            background: #1e293b;
+            border: 1px solid rgba(100,116,139,0.3);
+        }
     </style>
 </head>
-<body class="flex flex-col">
+<body class="flex flex-col" data-theme="light">
 
+    <!-- Tela de Login -->
     <section id="tela-login" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-blue-400/20 backdrop-blur-3xl">
         <div class="glass-card w-full max-w-md p-10 text-center space-y-6">
-            <h2 class="text-3xl font-black italic text-blue-900 drop-shadow-sm">Faça o login para continuar</h2>
+            <h2 class="text-3xl font-black italic drop-shadow-sm">Faça o login para continuar</h2>
             <div class="space-y-4">
                 <input type="text" id="login-user" placeholder="Usuário" class="w-full p-4 rounded-2xl glass-card outline-none font-bold">
                 <input type="password" id="login-pass" placeholder="Senha" class="w-full p-4 rounded-2xl glass-card outline-none font-bold">
-                <button onclick="realizarLogin()" class="glossy w-full bg-blue-600 text-white font-black py-4 rounded-2xl">ENTRAR</button>
+                <button onclick="realizarLogin()" class="glossy w-full bg-blue-600 text-white font-black py-4 rounded-2xl hover:scale-105 transition-all">ENTRAR</button>
             </div>
         </div>
     </section>
 
-    <header id="main-header" class="hidden glossy bg-[#0054a6] text-white h-[50px] px-4 flex justify-between items-center sticky top-0 z-40">
-        <div class="flex items-center gap-3">
-            <h1 class="text-lg font-black italic tracking-tighter">S.O ED. FRUTIGER AERO</h1>
-            <i id="notif-feed-icon" data-lucide="bell" class="w-4 h-4 cursor-pointer" onclick="abrirFeed()"></i>
+    <!-- Header -->
+    <header id="main-header" class="hidden glossy bg-[#0054a6] text-white h-[60px] px-4 flex justify-between items-center sticky top-0 z-40">
+        <div class="flex items-center gap-4">
+            <h1 class="text-lg font-black italic tracking-tighter">S.O 3.0 FRUTIGER AERO</h1>
+            
+            <!-- Notificações -->
+            <div class="relative cursor-pointer" onclick="toggleNotificacoes()">
+                <i id="notif-icon" data-lucide="bell" class="w-5 h-5"></i>
+                <span id="notif-badge" class="notif-badge hidden">0</span>
+            </div>
+            
+            <!-- Chat -->
+            <div class="relative cursor-pointer" onclick="abrirChat()">
+                <i data-lucide="message-circle" class="w-5 h-5"></i>
+                <span id="chat-badge" class="notif-badge hidden">0</span>
+            </div>
         </div>
+        
         <div class="welcome-msg text-center truncate px-2">Bem-vindo(a), <span id="welcome-name">...</span></div>
-        <div class="flex items-center gap-2 cursor-pointer" onclick="verMeuPerfil()">
-            <div class="text-right hidden sm:block"><p id="nav-xp" class="text-[9px] font-black text-blue-200"></p></div>
-            <div class="relative">
-                <img id="nav-img" src="" class="w-8 h-8 rounded-full border border-white/50 object-cover bg-white/20">
-                <div id="nav-status" class="w-3 h-3 rounded-full border-2 border-white absolute bottom-0 right-0"></div>
+        
+        <div class="flex items-center gap-3">
+            <!-- Theme Toggle -->
+            <div class="theme-toggle" onclick="toggleTheme()">
+                <div class="theme-toggle-slider">
+                    <i id="theme-icon" data-lucide="sun" class="w-4 h-4"></i>
+                </div>
+            </div>
+            
+            <!-- Perfil -->
+            <div class="flex items-center gap-2 cursor-pointer" onclick="verMeuPerfil()">
+                <div class="text-right hidden sm:block">
+                    <p id="nav-xp" class="text-[9px] font-black text-blue-200"></p>
+                </div>
+                <div class="relative">
+                    <img id="nav-img" src="" class="w-9 h-9 rounded-full border-2 border-white/50 object-cover bg-white/20">
+                    <div id="nav-status" class="w-3 h-3 rounded-full border-2 border-white absolute bottom-0 right-0 bg-green-400"></div>
+                </div>
             </div>
         </div>
     </header>
 
-    <main id="main-content" class="hidden flex-1 p-4 max-w-5xl mx-auto w-full space-y-6">
+    <main id="main-content" class="hidden flex-1 p-4 max-w-6xl mx-auto w-full space-y-6">
         
+        <!-- Tela Menu -->
         <section id="tela-menu" class="space-y-6">
             <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-center uppercase text-[8px] font-black">
                 <div onclick="abrirFeed()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
-                    <i data-lucide="layout" class="mx-auto mb-1 text-purple-600 w-5 h-5"></i> Feed Social
+                    <i data-lucide="layout" class="mx-auto mb-1 text-purple-600 w-6 h-6"></i> Feed Social
                 </div>
-                <div onclick="abrirFerramentaCotação()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
-                    <i data-lucide="calculator" class="mx-auto mb-1 text-blue-600 w-5 h-5"></i> Cotação
+                <div onclick="abrirFerramentaCotacao()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
+                    <i data-lucide="calculator" class="mx-auto mb-1 text-blue-600 w-6 h-6"></i> Cotação
                 </div>
                 <div onclick="abrirFerramenta('https://www.hapvida.com.br/site/carencia', 'carencia')" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
-                    <i data-lucide="shield-check" class="mx-auto mb-1 text-green-600 w-5 h-5"></i> Carência
+                    <i data-lucide="shield-check" class="mx-auto mb-1 text-green-600 w-6 h-6"></i> Carência
                 </div>
                 <div onclick="abrirFerramenta('https://www.hapvida.com.br/site/repique', 'repique')" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
-                    <i data-lucide="refresh-cw" class="mx-auto mb-1 text-orange-600 w-5 h-5"></i> Repique
+                    <i data-lucide="refresh-cw" class="mx-auto mb-1 text-orange-600 w-6 h-6"></i> Repique
                 </div>
-                <div onclick="tentarAcessoAdmin()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
-                    <i data-lucide="lock" class="mx-auto mb-1 text-gray-700 w-5 h-5"></i> Admin
+                <div onclick="abrirBadges()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
+                    <i data-lucide="award" class="mx-auto mb-1 text-yellow-600 w-6 h-6"></i> Badges
                 </div>
             </div>
 
+            <!-- Ranking do Mês -->
             <div class="glass-card p-5">
-                <h3 class="font-black text-blue-900 mb-4 flex items-center gap-2 text-[10px] uppercase italic"><i data-lucide="award"></i> Ranking do Mês</h3>
+                <h3 class="font-black mb-4 flex items-center gap-2 text-[10px] uppercase italic">
+                    <i data-lucide="trophy" class="text-yellow-500"></i> Ranking do Mês
+                </h3>
                 <div id="lista-equipe" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
             </div>
         </section>
 
+        <!-- Tela Feed -->
         <section id="tela-feed" class="hidden max-w-2xl mx-auto space-y-4 pb-20">
-            <button onclick="abrirTela('tela-menu')" class="text-[9px] font-black uppercase text-blue-600">Voltar</button>
+            <button onclick="abrirTela('tela-menu')" class="text-[9px] font-black uppercase text-blue-600 hover:text-blue-800">← Voltar</button>
+            
+            <!-- Criar Post -->
             <div class="glass-card p-4 space-y-3">
-                <textarea id="feed-text" class="w-full bg-white/30 p-3 rounded-xl outline-none text-xs font-medium" placeholder="O que você está pensando?"></textarea>
+                <div class="flex gap-3">
+                    <img id="post-user-img" src="" class="w-10 h-10 rounded-full object-cover">
+                    <textarea id="feed-text" class="flex-1 bg-white/30 p-3 rounded-xl outline-none text-sm font-medium min-h-[80px]" placeholder="O que você está pensando? Use @ para mencionar alguém..."></textarea>
+                </div>
+                <div id="mention-popup" class="mention-popup hidden"></div>
                 <div class="flex justify-between items-center">
                     <div class="flex gap-2">
                         <input type="file" id="feed-media" class="hidden" accept="image/*" onchange="previewMedia(this)">
-                        <button onclick="document.getElementById('feed-media').click()" class="p-2 bg-white/40 rounded-lg text-blue-600"><i data-lucide="image" class="w-4 h-4"></i></button>
+                        <button onclick="document.getElementById('feed-media').click()" class="p-2 bg-white/40 rounded-lg text-blue-600 hover:bg-white/60">
+                            <i data-lucide="image" class="w-5 h-5"></i>
+                        </button>
                     </div>
-                    <button onclick="postarFeed()" class="glossy bg-blue-600 text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase">PUBLICAR</button>
+                    <button onclick="postarFeed()" class="glossy bg-blue-600 text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase hover:scale-105 transition-all">PUBLICAR</button>
                 </div>
-                <div id="media-preview" class="hidden relative w-20 h-20 rounded-lg overflow-hidden border border-blue-200">
+                <div id="media-preview" class="hidden relative w-24 h-24 rounded-lg overflow-hidden border-2 border-blue-200">
                     <img id="img-preview" src="" class="w-full h-full object-cover">
-                    <button onclick="removerMedia()" class="absolute top-0 right-0 bg-red-500 text-white rounded-bl-lg p-1"><i data-lucide="x" class="w-3 h-3"></i></button>
+                    <button onclick="removerMedia()" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
                 </div>
             </div>
+            
+            <!-- Posts -->
             <div id="feed-posts" class="space-y-6"></div>
         </section>
 
-        </main>
+        <!-- Tela Badges -->
+        <section id="tela-badges" class="hidden max-w-4xl mx-auto space-y-6 pb-20">
+            <button onclick="abrirTela('tela-menu')" class="text-[9px] font-black uppercase text-blue-600 hover:text-blue-800">← Voltar</button>
+            
+            <div class="glass-card p-6">
+                <h2 class="text-2xl font-black mb-2 flex items-center gap-3">
+                    <i data-lucide="award" class="w-8 h-8 text-yellow-500"></i>
+                    Sistema de Badges
+                </h2>
+                <p class="text-sm opacity-70 mb-6">Conquiste badges especiais pela sua dedicação!</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="badges-grid"></div>
+            </div>
+        </section>
 
+    </main>
+
+    <!-- Painel de Notificações -->
+    <div id="notif-panel" class="hidden fixed top-[60px] right-4 w-80 max-h-[500px] glass-card p-4 z-50 overflow-y-auto no-scrollbar">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-black text-sm">Notificações</h3>
+            <button onclick="marcarTodasLidas()" class="text-[9px] font-bold text-blue-600 hover:text-blue-800">Marcar todas como lidas</button>
+        </div>
+        <div id="notif-list" class="space-y-2">
+            <p class="text-xs text-center opacity-50 py-8">Nenhuma notificação</p>
+        </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div id="chat-modal" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-[90] flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-4xl h-[600px] flex flex-col">
+            <!-- Chat Header -->
+            <div class="p-4 border-b border-white/20 flex justify-between items-center">
+                <h3 class="font-black text-lg flex items-center gap-2">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                    Mensagens
+                </h3>
+                <button onclick="fecharChat()" class="hover:scale-110 transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 flex overflow-hidden">
+                <!-- Lista de Conversas -->
+                <div class="w-1/3 border-r border-white/20 overflow-y-auto no-scrollbar">
+                    <div id="chat-list" class="p-2 space-y-1"></div>
+                </div>
+                
+                <!-- Conversa Ativa -->
+                <div class="flex-1 flex flex-col">
+                    <div id="chat-messages" class="flex-1 p-4 overflow-y-auto no-scrollbar space-y-3">
+                        <p class="text-center text-sm opacity-50 py-20">Selecione uma conversa</p>
+                    </div>
+                    
+                    <!-- Input de Mensagem -->
+                    <div id="chat-input-area" class="hidden p-4 border-t border-white/20">
+                        <div class="flex gap-2">
+                            <input type="text" id="chat-input" placeholder="Digite sua mensagem..." class="flex-1 p-3 rounded-xl glass-card outline-none text-sm">
+                            <button onclick="enviarMensagem()" class="glossy bg-blue-600 text-white px-6 rounded-xl font-bold hover:scale-105 transition-all">
+                                <i data-lucide="send" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Admin -->
     <div id="modal-admin" class="hidden fixed inset-0 bg-blue-900/30 backdrop-blur-md z-[60] flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-sm p-6 space-y-5">
-            <h3 class="text-xl font-black text-blue-900 italic">Admin</h3>
+            <h3 class="text-xl font-black italic">Admin</h3>
             <div class="space-y-4">
                 <div>
-                    <label class="text-[9px] font-black text-blue-700 uppercase">Destaque: Funcionário do Mês</label>
+                    <label class="text-[9px] font-black uppercase">Destaque: Funcionário do Mês</label>
                     <select id="adm-f-mes" class="w-full p-2 glass-card text-[10px] font-bold mt-1"></select>
                 </div>
                 <div>
-                    <label class="text-[9px] font-black text-blue-700 uppercase">Conceder Honraria</label>
+                    <label class="text-[9px] font-black uppercase">Conceder Badge</label>
                     <div class="flex gap-2 mt-1">
                         <select id="adm-alvo" class="flex-1 p-2 glass-card text-[10px] font-bold"></select>
                         <select id="adm-selo" class="flex-1 p-2 glass-card text-[10px] font-bold"></select>
@@ -122,10 +387,11 @@
                 </div>
                 <button onclick="salvarAdmin()" class="glossy w-full bg-blue-600 text-white py-3 rounded-xl font-black uppercase text-[10px]">Salvar Configurações</button>
             </div>
-            <button onclick="document.getElementById('modal-admin').classList.add('hidden')" class="w-full text-[9px] font-bold text-gray-400 uppercase">Fechar</button>
+            <button onclick="document.getElementById('modal-admin').classList.add('hidden')" class="w-full text-[9px] font-bold opacity-50 uppercase">Fechar</button>
         </div>
     </div>
 
+    <!-- Modal Cotação -->
     <div id="modal-cotacao" class="hidden fixed inset-0 bg-white z-[100] overflow-y-auto">
         <div class="p-4 bg-blue-900 text-white flex justify-between items-center sticky top-0">
             <h2 class="font-black uppercase text-xs">Calculadora de Cotação</h2>
@@ -134,6 +400,6 @@
         <div id="conteudo-cotacao"></div>
     </div>
 
-    <script type="module" src="script.js"></script>
+    <script type="module" src="script-v3.js"></script>
 </body>
 </html>
