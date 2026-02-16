@@ -74,7 +74,7 @@ const BADGES = {
 const STATUS_HUMOR = {
     "focado": { emoji: "🎯", texto: "Focado", classe: "status-focado" },
     "disponivel": { emoji: "😊", texto: "Disponível para Resenha", classe: "status-disponivel" },
-    "sobrevivencia": { emoji: "😰", texto: "Modo Sobrevivência", classe: "status-sobrevivencia" },
+    "só falta jogar areia": { emoji: "😰", texto: "Sentindo morto por dentro", classe: "status-sobrevivencia" },
     "18h": { emoji: "⏰", texto: "Esperando 18h", classe: "status-18h" }
 };
 
@@ -1959,6 +1959,7 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
 
