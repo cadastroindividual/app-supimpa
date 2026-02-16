@@ -18,9 +18,25 @@ let currentChat = null;
 
 // DEFINIÇÕES DE SELOS
 const BADGES = {
+    // LENDÁRIOS
     "lider-lendario": { t: "Líder de Líderes", d: "Mais de 3 anos de casa, uau! Não é para qualquer um.", c: "lendario" },
+    "estrategista": { t: "Estrategista Hapvida", d: "Visão além do alcance em cada negociação.", c: "lendario" },
+    "presidente": { t: "Futuro Presidente", d: "O herdeiro legítimo da Hapvida.", c: "lendario" },
+    
+    // RAROS
     "agilidade-raro": { t: "Agilidade em Pessoa", d: "Esse ADM é rápido no gatilho!", c: "raro" },
-    "festa-comum": { t: "Festa da Firma", d: "Só vejo esse ADM em festas ou aniversários.", c: "comum" }
+    "sniper-pme": { t: "Sniper do PME", d: "Mira certeira em contratos empresariais.", c: "raro" },
+    "mestre-fechamento": { t: "Mestre do Fechamento", d: "Onde ele põe a mão, o contrato aparece assinado.", c: "raro" },
+    "anjo-guarda": { t: "Anjo da Guarda", d: "Sempre ajudando o próximo com as dúvidas do app.", c: "raro" },
+
+    // COMUNS
+    "festa-comum": { t: "Festa da Firma", d: "Só vejo esse ADM em festas ou aniversários.", c: "comum" },
+    "cafeineiro": { t: "Cafeineiro Oficial", d: "Xícara de café sempre cheia, foco total.", c: "comum" },
+    "dono-feed": { t: "Dono do Feed", d: "O influencer oficial do sistema Supimpa.", c: "comum" },
+    "madrugador": { t: "Madrugador", d: "O primeiro a abrir o sistema e dar bom dia.", c: "comum" },
+    "inimigo-pendencia": { t: "Inimigo da Pendência", d: "Organização impecável, nada fica pra trás.", c: "comum" },
+    "dj-setor": { t: "DJ do Setor", d: "Mantendo a vibe lá em cima com muita animação.", c: "comum" }
+};
 };
 
 // 1. LOGIN
@@ -225,3 +241,4 @@ window.logout = () => { localStorage.removeItem('supimpa_session'); location.rel
 // Check Sessão
 const session = localStorage.getItem('supimpa_session');
 if(session) { currentUser = JSON.parse(session); startApp(); }
+
