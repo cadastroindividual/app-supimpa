@@ -899,7 +899,9 @@ window.removerScript = async (id) => {
 
 // ==================== CALENDÁRIO ====================
 window.abrirCalendario = () => {
-    const ehAdmin = ADMINS.includes(currentUser.nome);
+    const ehAdmin = ADMINS
+    .map(a => a.toLowerCase())
+    .includes(currentUser.nome.toLowerCase());
     const modal = criarModal('📅 Calendário', `
         ${ehAdmin ? `
             <button onclick="criarEvento()" 
@@ -919,6 +921,10 @@ window.abrirCalendario = () => {
     carregarEventos();
 };
 async function carregarEventos() {
+    const ehAdmin = ADMINS
+        .map(a => a.toLowerCase())
+        .includes(currentUser.nome.toLowerCase());
+
     const snap = await get(ref(db, 'eventos'));
     const lista = document.getElementById('eventos-lista');
     lista.innerHTML = '';
@@ -934,8 +940,10 @@ async function carregarEventos() {
                     <p class="text-xs opacity-70">📅 ${e.data} às ${e.hora}</p>
                     <p class="text-sm mt-2">${e.descricao}</p>
                 </div>
-                ${ADMINS.includes(currentUser.nome) ? `
-                    <button onclick="removerEvento('${c.key}')" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                ${ehAdmin ? `
+                    <button onclick="removerEvento('${c.key}')" class="text-red-500">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
                 ` : ''}
             </div>
         `;
@@ -1959,6 +1967,7 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
 
