@@ -1,6 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref, onValue, set, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyB69yq8gyn_hDn2Cbbhb1wwIpzvQp_dkwA",
@@ -14,17 +13,14 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const storage = getStorage(app);
 let currentUser = null;
 
 const BADGES = {
     "lider": { t: "Líder de Líderes", d: "Veterano supremo.", c: "lendario" },
-    "estrategista": { t: "Estrategista Hapvida", d: "Mestre das vendas.", c: "lendario" },
     "presidente": { t: "Futuro Presidente", d: "O herdeiro legítimo.", c: "lendario" },
-    "agilidade": { t: "Agilidade em Pessoa", d: "Rápido no gatilho.", c: "raro" },
-    "sniper": { t: "Sniper do PME", d: "Mira certeira.", c: "raro" },
-    "cafeineiro": { t: "Cafeineiro Oficial", d: "Movido a café.", c: "comum" },
-    "festa": { t: "Festa da Firma", d: "Sempre presente.", c: "comum" }
+    "sniper": { t: "Sniper do PME", d: "Não perde um contrato.", c: "raro" },
+    "cafe": { t: "Cafeineiro Oficial", d: "Movido a base de grãos.", c: "comum" },
+    "festa": { t: "Festa da Firma", d: "O rei das comemorações.", c: "comum" }
 };
 
 window.realizarLogin = async () => {
@@ -38,21 +34,20 @@ window.realizarLogin = async () => {
         currentUser = find;
         localStorage.setItem('supimpa_session', JSON.stringify(currentUser));
         location.reload();
-    } else alert("Usuário ou senha incorretos.");
+    } else alert("Acesso Negado.");
 };
 
 function init() {
     document.getElementById('tela-login').classList.add('hidden');
     document.getElementById('main-header').classList.remove('hidden');
     document.getElementById('main-content').classList.remove('hidden');
-    
     document.getElementById('nav-nome').innerText = currentUser.nome;
-    document.getElementById('perfil-nome').innerText = currentUser.nome;
-
+    
     onValue(ref(db, `users/${currentUser.nome.replace(/\s/g, '')}`), (s) => {
         const d = s.val() || {};
         document.getElementById('nav-img').src = d.foto || 'https://via.placeholder.com/80';
         document.getElementById('perfil-foto').src = d.foto || 'https://via.placeholder.com/80';
+        document.getElementById('perfil-nome').innerText = currentUser.nome;
         renderBadges(d.badges || {});
     });
 
@@ -62,31 +57,29 @@ function init() {
     lucide.createIcons();
 }
 
-window.postarFeed = async () => {
+// POSTAR NO FEED (VERSÃO SEM STORAGE)
+window.postarFeed = () => {
     const txt = document.getElementById('feed-text').value;
     const file = document.getElementById('feed-file').files[0];
     if(!txt && !file) return;
 
-    let midiaUrl = null;
-    let tipoMidia = null;
+    const postRef = push(ref(db, 'feed'));
+    const data = { autor: currentUser.nome, txt, time: serverTimestamp() };
 
     if (file) {
-        const fileRef = sRef(storage, `feed/${Date.now()}_${file.name}`);
-        const snap = await uploadBytes(fileRef, file);
-        midiaUrl = await getDownloadURL(snap.ref);
-        tipoMidia = file.type.includes('video') ? 'video' : 'foto';
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            data.midia = reader.result; // O arquivo vira texto aqui
+            data.tipo = file.type.includes('video') ? 'video' : 'foto';
+            set(postRef, data);
+            document.getElementById('feed-text').value = '';
+            document.getElementById('feed-file').value = '';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        set(postRef, data);
+        document.getElementById('feed-text').value = '';
     }
-
-    push(ref(db, 'feed'), {
-        autor: currentUser.nome,
-        txt,
-        midia: midiaUrl,
-        tipo: tipoMidia,
-        time: serverTimestamp()
-    });
-
-    document.getElementById('feed-text').value = '';
-    document.getElementById('feed-file').value = '';
 };
 
 function carregarFeed() {
@@ -97,15 +90,15 @@ function carregarFeed() {
         s.forEach(p => list.unshift(p.val()));
 
         list.forEach(p => {
-            const media = p.tipo === 'video' 
-                ? `<video src="${p.midia}" controls class="feed-video"></video>`
-                : (p.midia ? `<img src="${p.midia}" class="w-full mt-2 rounded-xl">` : '');
+            const mediaTag = p.tipo === 'video' 
+                ? `<video src="${p.midia}" controls class="feed-video w-full mt-2 rounded-xl"></video>`
+                : (p.midia ? `<img src="${p.midia}" class="w-full mt-2 rounded-xl shadow-md">` : '');
             
             container.innerHTML += `
                 <div class="glass-card p-5 space-y-2">
                     <p class="text-[9px] font-black text-blue-900 uppercase italic">${p.autor}</p>
                     <p class="text-sm font-medium text-blue-800">${p.txt}</p>
-                    ${media}
+                    ${mediaTag}
                 </div>`;
         });
     });
@@ -144,7 +137,7 @@ function carregarEquipe() {
 window.tentarAcessoAdmin = () => {
     const n = currentUser.nome;
     if(n === "Narciso Silva" || n === "Cleide Tavares") document.getElementById('modal-admin').classList.remove('hidden');
-    else alert("Acesso restrito à Gerência!");
+    else alert("Acesso restrito!");
 };
 
 window.darSelo = () => {
@@ -173,7 +166,7 @@ function renderBadges(badges) {
     c.innerHTML = '';
     Object.keys(badges).forEach(k => {
         const b = BADGES[k];
-        c.innerHTML += `<div class="p-2 glass-card text-[8px] font-black ${b.c === 'lendario' ? 'text-yellow-600 border-yellow-400' : 'text-blue-700'}">${b.t}</div>`;
+        c.innerHTML += `<div class="p-2 glass-card text-[8px] font-black text-blue-700">${b.t}</div>`;
     });
 }
 
