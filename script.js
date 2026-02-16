@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref, onValue, set, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref, onValue, set, push, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyB69yq8gyn_hDn2Cbbhb1wwIpzvQp_dkwA",
@@ -14,12 +14,19 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let currentUser = null;
+let currentChat = null;
+
+// DEFINIÇÕES DE SELOS
+const BADGES = {
+    "lider-lendario": { t: "Líder de Líderes", d: "Mais de 3 anos de casa, uau! Não é para qualquer um.", c: "lendario" },
+    "agilidade-raro": { t: "Agilidade em Pessoa", d: "Esse ADM é rápido no gatilho!", c: "raro" },
+    "festa-comum": { t: "Festa da Firma", d: "Só vejo esse ADM em festas ou aniversários.", c: "comum" }
+};
 
 // 1. LOGIN
 window.realizarLogin = async () => {
     const user = document.getElementById('login-user').value.toLowerCase().trim();
     const pass = document.getElementById('login-pass').value;
-
     const res = await fetch('equipe.json');
     const equipe = await res.json();
     const find = equipe.find(f => f.nome.split(' ')[0].toLowerCase() === user && pass === "123");
@@ -28,153 +35,193 @@ window.realizarLogin = async () => {
         currentUser = find;
         localStorage.setItem('supimpa_session', JSON.stringify(currentUser));
         location.reload();
-    } else alert("Acesso Negado!");
+    } else alert("Usuário ou Senha inválidos.");
 };
 
 // 2. INICIALIZAÇÃO
-function init() {
+function startApp() {
     document.getElementById('tela-login').classList.add('hidden');
     document.getElementById('main-header').classList.remove('hidden');
     document.getElementById('main-content').classList.remove('hidden');
     
+    // UI Updates
     document.getElementById('nav-user-nome').innerText = currentUser.nome;
-    document.getElementById('nav-user-cargo').innerText = currentUser.cargo;
-    document.getElementById('perfil-nome').innerText = currentUser.nome;
-    document.getElementById('perfil-cargo').innerText = currentUser.cargo;
+    document.getElementById('perfil-nome-completo').innerText = currentUser.nome;
 
-    // Escuta Foto do Perfil Global
-    onValue(ref(db, `users/${currentUser.nome.replace(/\s/g, '')}/foto`), (s) => {
-        const url = s.val() || 'https://via.placeholder.com/150';
-        document.getElementById('nav-user-img').src = url;
-        document.getElementById('perfil-foto-view').src = url;
+    // Escuta Foto e Status do Usuário Logado
+    onValue(ref(db, `users/${currentUser.nome.replace(/\s/g, '')}`), (s) => {
+        const data = s.val() || {};
+        document.getElementById('nav-user-img').src = data.foto || 'https://via.placeholder.com/100';
+        document.getElementById('perfil-foto-grande').src = data.foto || 'https://via.placeholder.com/100';
+        document.getElementById('nav-user-status').innerText = data.status || 'Online';
+        renderizarBadges(data.badges || {});
     });
 
-    // Escuta Notas Privadas
-    const notas = localStorage.getItem(`notas_${currentUser.nome}`);
-    if(notas) document.getElementById('bloco-notas').value = notas;
-
+    ouvirEquipe();
     carregarFeed();
-    ouvirEquipeEDestaque();
+    prepararAdmin();
     lucide.createIcons();
 }
 
-// 3. FOTO GLOBAL
-window.atualizarFotoGlobal = () => {
-    const file = document.getElementById('perfil-upload').files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-        set(ref(db, `users/${currentUser.nome.replace(/\s/g, '')}/foto`), reader.result);
-    };
-    if(file) reader.readAsDataURL(file);
+// 3. MONITORAMENTO DA EQUIPE (HOME)
+async function ouvirEquipe() {
+    const res = await fetch('equipe.json');
+    const equipeData = await res.json();
+    
+    onValue(ref(db, 'config'), (snapConfig) => {
+        const config = snapConfig.val() || {};
+        const lista = document.getElementById('lista-equipe');
+        lista.innerHTML = '';
+
+        onValue(ref(db, 'users'), (snapUsers) => {
+            const allUsers = snapUsers.val() || {};
+            lista.innerHTML = '';
+
+            equipeData.forEach(adm => {
+                const id = adm.nome.replace(/\s/g, '');
+                const userDb = allUsers[id] || {};
+                const isDestaque = adm.nome === config.funcionarioDoMes;
+                const hasLendario = userDb.badges && userDb.badges['lider-lendario'];
+                const temMensagem = userDb.chatWith === currentUser.nome.replace(/\s/g, '');
+
+                lista.innerHTML += `
+                    <div class="${isDestaque ? 'gold-card' : ''} ${temMensagem ? 'chat-unread' : ''}">
+                        <div class="${isDestaque ? 'gold-inner' : 'glass-card p-4'} flex justify-between items-center">
+                            <div class="flex items-center gap-3 cursor-pointer" onclick="verPerfilOutro('${adm.nome}')">
+                                <img src="${userDb.foto || 'https://via.placeholder.com/50'}" class="w-10 h-10 rounded-full border-2 border-white object-cover">
+                                <div>
+                                    <p class="text-[11px] font-black text-blue-900">${adm.nome} ${hasLendario ? '<span class="badge-lendario"></span>' : ''}</p>
+                                    <p class="text-[8px] font-bold text-blue-500 uppercase">${userDb.status || 'Offline'}</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="iniciarChat('${adm.nome}', '${userDb.foto}')" class="text-blue-600"><i data-lucide="message-circle" class="w-4 h-4"></i></button>
+                                <a href="https://wa.me/${adm.fone}" class="text-green-600"><i data-lucide="phone" class="w-4 h-4"></i></a>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            lucide.createIcons();
+        });
+    });
+}
+
+// 4. CHAT EM TEMPO REAL
+window.iniciarChat = (nome, foto) => {
+    currentChat = nome.replace(/\s/g, '');
+    document.getElementById('chat-header-nome').innerText = nome;
+    document.getElementById('chat-header-img').src = foto || 'https://via.placeholder.com/50';
+    abrirTela('tela-chat');
+    
+    const chatID = [currentUser.nome.replace(/\s/g, ''), currentChat].sort().join('_');
+    onValue(ref(db, `chats/${chatID}`), (s) => {
+        const msgs = document.getElementById('chat-mensagens');
+        msgs.innerHTML = '';
+        s.forEach(m => {
+            const msg = m.val();
+            const side = msg.de === currentUser.nome ? 'msg-me' : 'msg-them';
+            msgs.innerHTML += `<div class="msg-bubble ${side}">${msg.txt}</div>`;
+        });
+        msgs.scrollTop = msgs.scrollHeight;
+    });
 };
 
-// 4. SISTEMA DE FEED (MINI REDE SOCIAL)
-window.postarNoFeed = () => {
-    const texto = document.getElementById('feed-input').value;
-    const file = document.getElementById('feed-img-input').files[0];
-    if(!texto && !file) return;
+window.enviarMensagem = () => {
+    const txt = document.getElementById('chat-input').value;
+    if(!txt) return;
+    const chatID = [currentUser.nome.replace(/\s/g, ''), currentChat].sort().join('_');
+    push(ref(db, `chats/${chatID}`), { de: currentUser.nome, txt, time: serverTimestamp() });
+    document.getElementById('chat-input').value = '';
+};
 
-    const postRef = push(ref(db, 'feed'));
-    const postData = {
-        autor: currentUser.nome,
-        setor: currentUser.cargo,
-        texto: texto,
-        timestamp: serverTimestamp(),
-        likes: 0
-    };
-
-    if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            postData.imagem = reader.result;
-            set(postRef, postData);
-            document.getElementById('feed-input').value = '';
-        };
-        reader.readAsDataURL(file);
+// 5. ADMIN E PERMISSÕES
+window.tentarAcessoAdmin = () => {
+    const nome = currentUser.nome;
+    if(nome === "Narciso Silva" || nome === "Cleide Tavares") {
+        document.getElementById('modal-admin').classList.remove('hidden');
     } else {
-        set(postRef, postData);
-        document.getElementById('feed-input').value = '';
+        alert("🚨 ACESSO RESTRITO: Apenas Narry (Futuro Presidente) e Cleide Tavares podem acessar.");
     }
 };
 
-function carregarFeed() {
-    onValue(ref(db, 'feed'), (snapshot) => {
-        const container = document.getElementById('feed-container');
-        container.innerHTML = '';
-        const posts = [];
-        snapshot.forEach(child => { posts.unshift({ id: child.key, ...child.val() }); });
+window.darSelo = () => {
+    const target = document.getElementById('sel-func').value;
+    const badgeKey = document.getElementById('sel-badge').value;
+    set(ref(db, `users/${target}/badges/${badgeKey}`), true);
+    alert("Selo atribuído com sucesso!");
+};
 
-        posts.forEach(p => {
-            const date = p.timestamp ? new Date(p.timestamp).toLocaleString() : 'Agora';
-            container.innerHTML += `
-                <div class="glass-card p-5 space-y-3">
-                    <div class="flex items-center gap-3">
-                        <div class="text-left">
-                            <p class="text-xs font-black text-blue-900">${p.autor} <span class="font-bold text-blue-400 opacity-60">• ${p.setor}</span></p>
-                            <p class="text-[9px] font-bold text-gray-400">${date}</p>
-                        </div>
-                    </div>
-                    <p class="text-sm text-blue-900 font-medium">${p.texto}</p>
-                    ${p.imagem ? `<img src="${p.imagem}" class="post-img shadow-lg">` : ''}
-                    <div class="flex gap-4 pt-2 border-t border-white/20">
-                        <button class="flex items-center gap-1 text-[10px] font-black text-blue-600"><i data-lucide="thumbs-up" class="w-3 h-3"></i> LIKE</button>
-                        <button class="flex items-center gap-1 text-[10px] font-black text-red-600"><i data-lucide="heart" class="w-3 h-3"></i> AMEI</button>
-                        <button class="flex items-center gap-1 text-[10px] font-black text-gray-600"><i data-lucide="message-square" class="w-3 h-3"></i> COMENTAR</button>
-                    </div>
-                </div>`;
-        });
-        lucide.createIcons();
-    });
-}
-
-// 5. EQUIPE E DESTAQUE DOURADO
-function ouvirEquipeEDestaque() {
-    onValue(ref(db, 'config/funcionarioDoMes'), (snap) => {
-        const destaque = snap.val();
-        renderizarEquipe(destaque);
-    });
-}
-
-async function renderizarEquipe(destaqueNome) {
+async function prepararAdmin() {
     const res = await fetch('equipe.json');
     const equipe = await res.json();
-    const lista = document.getElementById('lista-equipe');
-    lista.innerHTML = '';
-
-    equipe.forEach(adm => {
-        const isDestaque = adm.nome.toLowerCase() === destaqueNome?.toLowerCase();
-        
-        lista.innerHTML += `
-            <div class="${isDestaque ? 'gold-card' : 'glass-card p-4'}">
-                <div class="${isDestaque ? 'gold-card-inner' : 'flex justify-between items-center'}">
-                    <div class="flex items-center gap-3">
-                        <div>
-                            <p class="text-xs font-black text-blue-900">${adm.nome} ${isDestaque ? '🏆' : ''}</p>
-                            <p class="text-[9px] font-bold text-blue-500 uppercase">${isDestaque ? 'Funcionário do Mês' : adm.cargo}</p>
-                        </div>
-                    </div>
-                    <a href="https://wa.me/${adm.fone}" class="text-green-600 ml-auto"><i data-lucide="phone" class="w-4 h-4"></i></a>
-                </div>
-            </div>`;
-    });
-    lucide.createIcons();
+    const select = document.getElementById('sel-func');
+    equipe.forEach(a => select.innerHTML += `<option value="${a.nome.replace(/\s/g, '')}">${a.nome}</option>`);
 }
 
-// NAVEGAÇÃO E AUXILIARES
+// 6. FEED E OUTROS
+function carregarFeed() {
+    onValue(ref(db, 'feed'), (s) => {
+        const container = document.getElementById('feed-posts');
+        container.innerHTML = '';
+        const list = [];
+        s.forEach(p => { list.unshift({id: p.key, ...p.val()}); });
+        
+        list.forEach(p => {
+            const timeAgo = p.time ? calcularTempo(p.time) : 'Agora';
+            container.innerHTML += `
+                <div class="glass-card p-5 space-y-2">
+                    <p class="text-[10px] font-black text-blue-900">${p.autor} • <span class="text-gray-400">${timeAgo}</span></p>
+                    <p class="text-sm font-medium">${p.txt}</p>
+                    ${p.img ? `<img src="${p.img}" class="rounded-xl w-full">` : ''}
+                </div>`;
+        });
+    });
+}
+
+function calcularTempo(timestamp) {
+    const diff = Math.floor((Date.now() - timestamp) / 60000);
+    if(diff < 1) return 'Agora mesmo';
+    if(diff < 60) return `Há ${diff} min`;
+    const horas = Math.floor(diff/60);
+    if(horas < 24) return `Há ${horas} horas`;
+    return `Há ${Math.floor(horas/24)} dias`;
+}
+
+// AUXILIARES
 window.abrirTela = (id) => {
     document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
+    if(id === 'tela-menu') currentChat = null;
     lucide.createIcons();
 };
-window.salvarNotas = () => localStorage.setItem(`notas_${currentUser.nome}`, document.getElementById('bloco-notas').value);
-window.abrirConfig = () => document.getElementById('modal-config').classList.remove('hidden');
-window.fecharConfig = () => document.getElementById('modal-config').classList.add('hidden');
-window.salvarConfig = () => {
-    if(prompt("Senha Admin:") === "supimpa123") set(ref(db, 'config/funcionarioDoMes'), document.getElementById('input-destaque').value);
-    fecharConfig();
+
+window.mudarStatus = () => {
+    const s = document.getElementById('status-select').value;
+    set(ref(db, `users/${currentUser.nome.replace(/\s/g, '')}/status`), s);
 };
+
+window.uploadFoto = () => {
+    const file = document.getElementById('up-foto').files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => set(ref(db, `users/${currentUser.nome.replace(/\s/g, '')}/foto`), reader.result);
+    if(file) reader.readAsDataURL(file);
+};
+
+function renderizarBadges(badges) {
+    const container = document.getElementById('perfil-badges');
+    container.innerHTML = '';
+    Object.keys(badges).forEach(k => {
+        const b = BADGES[k];
+        container.innerHTML += `<div class="p-2 glass-card text-[9px] font-black ${b.c === 'lendario' ? 'border-yellow-400 text-yellow-700' : ''}">
+            ${b.t.toUpperCase()}<br><span class="font-normal opacity-60">${b.d}</span>
+        </div>`;
+    });
+}
+
+window.salvarAdmin = () => set(ref(db, 'config/funcionarioDoMes'), document.getElementById('input-mes').value);
+window.fecharAdmin = () => document.getElementById('modal-admin').classList.add('hidden');
 window.logout = () => { localStorage.removeItem('supimpa_session'); location.reload(); };
 
 // Check Sessão
 const session = localStorage.getItem('supimpa_session');
-if(session) { currentUser = JSON.parse(session); init(); }
+if(session) { currentUser = JSON.parse(session); startApp(); }
