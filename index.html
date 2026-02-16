@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S.O. SUPIMPA 1.8 - AERO XP EDITION</title>
+    <title>S.O. SUPIMPA 2.0 - ULTIMATE AERO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -23,15 +23,22 @@
             background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 24px;
         }
-        .xp-bar-bg { background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.3); }
-        .xp-bar-fill { background: linear-gradient(90deg, #3b82f6, #06b6d4); box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); transition: width 0.5s ease; }
+        .xp-bar-fill { background: linear-gradient(90deg, #3b82f6, #06b6d4); transition: width 0.5s ease; }
         .hidden { display: none !important; }
-        video.feed-video { border-radius: 18px; border: 2px solid rgba(255, 255, 255, 0.4); background: #000; margin-top: 10px; width: 100%; }
         
-        /* Estilos de Selos */
-        .selo-lendario { border-left: 4px solid #fbbf24; background: rgba(251, 191, 36, 0.1); }
-        .selo-raro { border-left: 4px solid #a855f7; background: rgba(168, 85, 247, 0.1); }
-        .selo-comum { border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.1); }
+        /* ANIMAÇÕES */
+        @keyframes glow-gold { 0%, 100% { box-shadow: 0 0 5px #ffd700; border-color: #ffd700; } 50% { box-shadow: 0 0 20px #ffd700; border-color: #fff; } }
+        @keyframes glow-green { 0%, 100% { box-shadow: 0 0 5px #22c55e; } 50% { box-shadow: 0 0 20px #22c55e; } }
+        
+        .card-f-mes { animation: glow-gold 2s infinite; border: 2px solid #ffd700 !important; background: rgba(255, 215, 0, 0.15) !important; }
+        .msg-alert { animation: glow-green 1.5s infinite; }
+        .feed-alert { color: #22c55e !important; filter: drop-shadow(0 0 8px #22c55e); animation: pulse 1s infinite; }
+        
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid white; }
+        .bg-online { background: #22c55e; }
+        .bg-almoço { background: #eab308; }
+        .bg-offline { background: #94a3b8; }
+        .bg-ausente { background: #ef4444; }
     </style>
 </head>
 <body class="flex flex-col">
@@ -48,94 +55,136 @@
     </section>
 
     <header id="main-header" class="hidden glossy bg-[#0054a6] text-white py-3 px-6 flex justify-between items-center sticky top-0 z-40">
-        <h1 class="text-xl font-black italic tracking-tighter">SUPIMPA 1.8</h1>
+        <div class="flex items-center gap-4">
+            <h1 class="text-xl font-black italic tracking-tighter">SUPIMPA 2.0</h1>
+            <div id="notif-bell" class="relative cursor-pointer">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+                <span id="notif-count" class="hidden absolute -top-1 -right-1 bg-red-500 text-[8px] rounded-full w-3 h-3 flex items-center justify-center">0</span>
+            </div>
+        </div>
         <div class="flex items-center gap-3 cursor-pointer" onclick="verMeuPerfil()">
             <div class="text-right hidden sm:block">
                 <p id="nav-nome" class="text-[11px] font-black leading-none"></p>
-                <p id="nav-xp" class="text-[8px] font-bold text-blue-200 uppercase"></p>
+                <p id="nav-xp" class="text-[8px] font-bold text-blue-200"></p>
             </div>
-            <img id="nav-img" src="" class="w-10 h-10 rounded-full border-2 border-white object-cover bg-white/20">
+            <div class="relative">
+                <img id="nav-img" src="" class="w-10 h-10 rounded-full border-2 border-white object-cover bg-white/20">
+                <div id="nav-status" class="status-dot absolute bottom-0 right-0 bg-offline"></div>
+            </div>
         </div>
     </header>
 
     <main id="main-content" class="hidden flex-1 p-4 max-w-5xl mx-auto w-full space-y-6">
         
+        <section id="area-stories" class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+            <div onclick="document.getElementById('story-file').click()" class="flex-shrink-0 w-16 h-16 rounded-full border-2 border-dashed border-blue-400 flex items-center justify-center cursor-pointer bg-white/30">
+                <i data-lucide="plus" class="text-blue-600"></i>
+                <input type="file" id="story-file" class="hidden" accept="image/*" onchange="postarStory(this)">
+            </div>
+            <div id="lista-stories" class="flex gap-4"></div>
+        </section>
+
         <section id="tela-menu" class="space-y-6">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center uppercase text-[9px] font-black">
                 <div onclick="abrirFeed()" class="glass-card p-6 cursor-pointer hover:scale-105 transition-all">
-                    <i data-lucide="layout" class="mx-auto mb-2 text-purple-600"></i> Feed Social
+                    <i id="icon-feed" data-lucide="layout" class="mx-auto mb-2"></i> Feed Social
                 </div>
-                <div onclick="abrirFerramenta('cotacao')" class="glass-card p-6 cursor-pointer hover:scale-105 transition-all">
-                    <i data-lucide="calculator" class="mx-auto mb-2 text-blue-600"></i> Cotação (+5 XP)
+                <div onclick="abrirFerramenta('https://www.hapvida.com.br/site/cotacao', 'cotacao')" class="glass-card p-6 cursor-pointer hover:scale-105 transition-all">
+                    <i data-lucide="calculator" class="mx-auto mb-2 text-blue-600"></i> Cotação
                 </div>
-                <div onclick="abrirFerramenta('carencia')" class="glass-card p-6 cursor-pointer hover:scale-105 transition-all">
-                    <i data-lucide="shield-check" class="mx-auto mb-2 text-green-600"></i> Carência (+5 XP)
+                <div onclick="abrirFerramenta('https://www.hapvida.com.br/site/carencia', 'carencia')" class="glass-card p-6 cursor-pointer hover:scale-105 transition-all">
+                    <i data-lucide="shield-check" class="mx-auto mb-2 text-green-600"></i> Carência
                 </div>
-                <div onclick="abrirFerramenta('repique')" class="glass-card p-6 cursor-pointer hover:scale-105 transition-all">
-                    <i data-lucide="refresh-cw" class="mx-auto mb-2 text-orange-600"></i> Repique (+5 XP)
-                </div>
-                <div onclick="abrirFerramenta('anotacao')" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all col-span-2">
-                    <i data-lucide="pen-tool" class="mx-auto mb-1 text-pink-600"></i> Fazer Anotação (+5 XP)
-                </div>
-                <div onclick="tentarAcessoAdmin()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all col-span-2">
-                    <i data-lucide="lock" class="mx-auto mb-1 text-gray-700"></i> Painel Admin
+                <div onclick="tentarAcessoAdmin()" class="glass-card p-6 cursor-pointer hover:scale-105 transition-all">
+                    <i data-lucide="lock" class="mx-auto mb-2 text-gray-700"></i> Admin
                 </div>
             </div>
 
             <div class="glass-card p-6">
-                <h3 class="font-black text-blue-900 mb-4 flex items-center gap-2 text-xs uppercase italic"><i data-lucide="trophy"></i> Ranking da Operação</h3>
+                <h3 class="font-black text-blue-900 mb-4 flex items-center gap-2 text-xs uppercase italic"><i data-lucide="users"></i> Squad Supimpa</h3>
                 <div id="lista-equipe" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
         </section>
 
-        <section id="tela-perfil" class="hidden max-w-md mx-auto space-y-4 pb-20">
-            <button onclick="abrirTela('tela-menu')" class="text-[10px] font-black uppercase text-blue-600 mb-2"><i data-lucide="arrow-left" class="inline w-3 h-3"></i> Voltar</button>
-            <div class="glass-card p-8 text-center space-y-4">
-                <img id="perf-view-img" src="" class="w-32 h-32 mx-auto rounded-full border-4 border-white shadow-2xl object-cover">
-                <h2 id="perf-view-nome" class="text-2xl font-black text-blue-900"></h2>
-                <p id="perf-view-cargo" class="text-[10px] font-bold text-blue-500 uppercase tracking-widest"></p>
-                
-                <div class="py-4 border-y border-white/30">
-                    <p class="text-[9px] font-black text-blue-900 uppercase">Pontuação Total</p>
-                    <div id="perf-view-xp-num" class="text-4xl font-black text-blue-600">0</div>
-                    <p class="text-[8px] font-bold text-gray-500 uppercase">XP de Carreira</p>
+        <section id="tela-perfil" class="hidden max-w-2xl mx-auto space-y-6 pb-20">
+            <button onclick="abrirTela('tela-menu')" class="text-[10px] font-black uppercase text-blue-600"><i data-lucide="arrow-left" class="inline w-3 h-3"></i> MENU</button>
+            
+            <div class="glass-card p-8 text-center space-y-6">
+                <div class="relative inline-block group">
+                    <img id="perf-view-img" src="" class="w-48 h-48 mx-auto rounded-full border-4 border-white shadow-2xl object-cover">
+                    <input type="file" id="change-photo" class="hidden" onchange="uploadFotoPerfil(this, 'foto')">
+                    <label id="btn-edit-photo" for="change-photo" class="hidden absolute bottom-2 right-2 p-2 bg-blue-600 rounded-full text-white cursor-pointer"><i data-lucide="camera" class="w-4 h-4"></i></label>
                 </div>
 
-                <div class="text-left space-y-3">
-                    <p class="text-[10px] font-black uppercase text-blue-900">Conquistas & Selos</p>
-                    <div id="perf-view-badges" class="flex flex-col gap-3"></div>
+                <div>
+                    <h2 id="perf-view-nome" class="text-3xl font-black text-blue-900"></h2>
+                    <div class="flex justify-center items-center gap-2 mt-2">
+                        <select id="status-select" onchange="mudarStatus(this.value)" class="hidden text-[10px] font-black p-1 rounded-lg border border-blue-200 outline-none">
+                            <option value="online">ONLINE</option>
+                            <option value="almoço">EM ALMOÇO</option>
+                            <option value="ausente">AUSENTE</option>
+                            <option value="offline">OFFLINE</option>
+                        </select>
+                        <span id="perf-view-status" class="text-[10px] font-black uppercase"></span>
+                    </div>
                 </div>
 
-                <button id="btn-logout" onclick="logout()" class="hidden text-red-500 font-black text-[10px] uppercase pt-4">Sair do Sistema</button>
+                <div class="space-y-3">
+                    <p class="text-[11px] font-black text-blue-900 uppercase">Fotos em Destaque</p>
+                    <div class="flex justify-center gap-4">
+                        <div class="destaque-box relative" onclick="triggerDestaque(1)">
+                            <img id="destaque-1" src="https://via.placeholder.com/100" class="w-20 h-20 rounded-2xl object-cover border-2 border-white shadow-md">
+                        </div>
+                        <div class="destaque-box relative" onclick="triggerDestaque(2)">
+                            <img id="destaque-2" src="https://via.placeholder.com/100" class="w-20 h-20 rounded-2xl object-cover border-2 border-white shadow-md">
+                        </div>
+                        <div class="destaque-box relative" onclick="triggerDestaque(3)">
+                            <img id="destaque-3" src="https://via.placeholder.com/100" class="w-20 h-20 rounded-2xl object-cover border-2 border-white shadow-md">
+                        </div>
+                    </div>
+                    <input type="file" id="file-destaque" class="hidden" onchange="uploadDestaque(this)">
+                </div>
+
+                <div id="perf-view-badges" class="flex flex-col gap-3 text-left"></div>
+                <button id="btn-logout" onclick="logout()" class="hidden text-red-500 font-black text-[10px] uppercase">Encerrar Sessão</button>
             </div>
         </section>
 
-        <section id="tela-feed" class="hidden max-w-xl mx-auto space-y-6 pb-20">
-            <button onclick="abrirTela('tela-menu')" class="glass-card px-4 py-2 font-black text-[10px]"><i data-lucide="arrow-left" class="inline w-3 h-3"></i> VOLTAR</button>
-            <div class="glass-card p-6 space-y-4">
-                <textarea id="feed-text" class="w-full bg-white/40 p-4 rounded-2xl outline-none text-sm font-medium" placeholder="O que está rolando?"></textarea>
-                <div class="flex justify-between items-center">
-                    <input type="file" id="feed-file" class="hidden" accept="image/*,video/*">
-                    <label for="feed-file" class="cursor-pointer text-[10px] font-black text-blue-600 flex items-center gap-2"><i data-lucide="camera"></i> ANEXAR MÍDIA</label>
-                    <button onclick="postarFeed()" class="glossy bg-blue-600 text-white px-6 py-2 rounded-xl font-black text-xs uppercase">Postar (+5 XP)</button>
+        <section id="tela-chat" class="hidden flex flex-col h-[80vh] glass-card overflow-hidden">
+            <div class="p-4 glossy bg-blue-600 text-white flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <img id="chat-alvo-img" src="" class="w-10 h-10 rounded-full border-2 border-white">
+                    <p id="chat-alvo-nome" class="font-black text-sm"></p>
                 </div>
+                <button onclick="abrirTela('tela-menu')" class="text-xs font-black uppercase">Fechar</button>
             </div>
-            <div id="feed-posts" class="space-y-6"></div>
+            <div id="chat-mensagens" class="flex-1 p-4 overflow-y-auto space-y-4 bg-white/10"></div>
+            <div class="p-4 bg-white/30 flex gap-2">
+                <input type="text" id="chat-input" class="flex-1 p-3 rounded-xl glass-card outline-none font-medium text-sm" placeholder="Escreva aqui...">
+                <button onclick="enviarMensagem()" class="p-3 bg-blue-600 text-white rounded-xl"><i data-lucide="send" class="w-5 h-5"></i></button>
+            </div>
         </section>
+
     </main>
 
     <div id="modal-admin" class="hidden fixed inset-0 bg-blue-900/40 backdrop-blur-xl z-[60] flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-lg p-8 space-y-6">
-            <h3 class="text-2xl font-black text-blue-900 italic">Gestão de Equipe</h3>
-            <div>
-                <label class="text-[10px] font-black uppercase text-blue-700 font-black">Conceder Honraria:</label>
-                <div class="flex flex-col gap-2 mt-2">
-                    <select id="adm-alvo" class="w-full p-3 glass-card text-xs font-bold"></select>
-                    <select id="adm-selo" class="w-full p-3 glass-card text-xs font-bold"></select>
-                    <button onclick="darSelo()" class="glossy bg-blue-600 text-white py-3 rounded-xl font-black text-xs uppercase">Confirmar Selo & Pontos</button>
+            <h3 class="text-2xl font-black text-blue-900 italic">Gestão Admin</h3>
+            <div class="space-y-4 text-xs font-black uppercase">
+                <div>
+                    <label>Funcionário do Mês:</label>
+                    <select id="adm-f-mes" class="w-full p-3 glass-card mt-1"></select>
                 </div>
+                <div>
+                    <label>Dar Selo:</label>
+                    <div class="flex gap-2">
+                        <select id="adm-alvo" class="flex-1 p-3 glass-card mt-1"></select>
+                        <select id="adm-selo" class="flex-1 p-3 glass-card mt-1"></select>
+                    </div>
+                </div>
+                <button onclick="salvarAdmin()" class="glossy w-full bg-blue-600 text-white py-4 rounded-xl">SALVAR ALTERAÇÕES</button>
             </div>
-            <button onclick="document.getElementById('modal-admin').classList.add('hidden')" class="w-full text-xs font-black text-gray-500 uppercase">Fechar Painel</button>
+            <button onclick="document.getElementById('modal-admin').classList.add('hidden')" class="w-full text-[10px] text-gray-500 font-black">CANCELAR</button>
         </div>
     </div>
 
