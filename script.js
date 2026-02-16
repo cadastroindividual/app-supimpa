@@ -984,20 +984,225 @@ function adicionarMsgUsuario(msg) {
 
 // ==================== FERRAMENTAS ====================
 window.abrirCotacao = async () => {
+    // ==================== FUNÇÕES DA COTAÇÃO ====================
+const tabelaPrecosCotacao = {
+    "PME": {
+        "NOSSO MÉDICO": {
+            "PARCIAL": { "0-18": { enf: 220.62, apt: 330.06 }, "19-23": { enf: 246.96, apt: 369.56 }, "24-28": { enf: 276.59, apt: 413.83 }, "29-33": { enf: 318.08, apt: 475.89 }, "34-38": { enf: 365.79, apt: 547.32 }, "39-43": { enf: 435.42, apt: 651.13 }, "44-48": { enf: 544.27, apt: 813.91 }, "49-53": { enf: 680.34, apt: 1017.51 }, "54-58": { enf: 1156.65, apt: 1730.32 }, "59+": { enf: 1295.44, apt: 1938.37 } },
+            "TOTAL": { "0-18": { enf: 165.43, apt: 247.13 }, "19-23": { enf: 185.28, apt: 277.12 }, "24-28": { enf: 207.51, apt: 310.37 }, "29-33": { enf: 238.64, apt: 356.93 }, "34-38": { enf: 274.44, apt: 410.47 }, "39-43": { enf: 326.58, apt: 488.46 }, "44-48": { enf: 408.23, apt: 610.58 }, "49-53": { enf: 510.29, apt: 763.23 }, "54-58": { enf: 867.49, apt: 1297.49 }, "59+": { enf: 971.59, apt: 1453.19 } }
+        },
+        "NOSSO PLANO": {
+            "PARCIAL": { "0-18": { amb: 177.51, enf: 244.77, apt: 366.48 }, "19-23": { amb: 198.81, enf: 274.14, apt: 410.46 }, "24-28": { amb: 222.67, enf: 307.04, apt: 459.72 }, "29-33": { amb: 256.07, enf: 353.10, apt: 528.68 }, "34-38": { amb: 294.48, enf: 406.07, apt: 607.98 }, "39-43": { amb: 350.43, enf: 483.22, apt: 723.50 }, "44-48": { amb: 438.04, enf: 604.03, apt: 904.38 }, "49-53": { amb: 547.55, enf: 755.04, apt: 1130.48 }, "54-58": { amb: 930.84, enf: 1283.57, apt: 1921.82 }, "59+": { amb: 1042.54, enf: 1437.60, apt: 2152.44 } },
+            "TOTAL": { "0-18": { amb: 113.87, enf: 183.63, apt: 274.75 }, "19-23": { amb: 127.53, enf: 205.67, apt: 307.72 }, "24-28": { amb: 142.83, enf: 230.35, apt: 344.65 }, "29-33": { amb: 164.25, enf: 264.90, apt: 396.35 }, "34-38": { amb: 188.89, enf: 304.64, apt: 455.80 }, "39-43": { amb: 224.78, enf: 362.52, apt: 542.40 }, "44-48": { amb: 280.98, enf: 453.15, apt: 678.00 }, "49-53": { amb: 351.23, enf: 566.44, apt: 847.50 }, "54-58": { amb: 597.09, enf: 962.95, apt: 1440.75 }, "59+": { amb: 668.74, enf: 1078.50, apt: 1613.64 } }
+        }
+    },
+    "INDIVIDUAL": {
+        "NOSSO MÉDICO": {
+            "PARCIAL": { "0-18": { enf: 220.62, apt: 330.06 }, "19-23": { enf: 246.96, apt: 369.56 }, "24-28": { enf: 276.59, apt: 413.83 }, "29-33": { enf: 318.08, apt: 475.89 }, "34-38": { enf: 365.79, apt: 547.32 }, "39-43": { enf: 435.42, apt: 651.13 }, "44-48": { enf: 544.27, apt: 813.91 }, "49-53": { enf: 680.34, apt: 1017.51 }, "54-58": { enf: 1156.65, apt: 1730.32 }, "59+": { enf: 1295.44, apt: 1938.37 } },
+            "TOTAL": { "0-18": { enf: 165.43, apt: 247.13 }, "19-23": { enf: 185.28, apt: 277.12 }, "24-28": { enf: 207.51, apt: 310.37 }, "29-33": { enf: 238.64, apt: 356.93 }, "34-38": { enf: 274.44, apt: 410.47 }, "39-43": { enf: 326.58, apt: 488.46 }, "44-48": { enf: 408.23, apt: 610.58 }, "49-53": { enf: 510.29, apt: 763.23 }, "54-58": { enf: 867.49, apt: 1297.49 }, "59+": { enf: 971.59, apt: 1453.19 } }
+        },
+        "NOSSO PLANO": {
+            "PARCIAL": { "0-18": { amb: 177.51, enf: 244.77, apt: 366.48 }, "19-23": { amb: 198.81, enf: 274.14, apt: 410.46 }, "24-28": { amb: 222.67, enf: 307.04, apt: 459.72 }, "29-33": { amb: 256.07, enf: 353.10, apt: 528.68 }, "34-38": { amb: 294.48, enf: 406.07, apt: 607.98 }, "39-43": { amb: 350.43, enf: 483.22, apt: 723.50 }, "44-48": { amb: 438.04, enf: 604.03, apt: 904.38 }, "49-53": { amb: 547.55, enf: 755.04, apt: 1130.48 }, "54-58": { amb: 930.84, enf: 1283.57, apt: 1921.82 }, "59+": { amb: 1042.54, enf: 1437.60, apt: 2152.44 } },
+            "TOTAL": { "0-18": { amb: 113.87, enf: 183.63, apt: 274.75 }, "19-23": { amb: 127.53, enf: 205.67, apt: 307.72 }, "24-28": { amb: 142.83, enf: 230.35, apt: 344.65 }, "29-33": { amb: 164.25, enf: 264.90, apt: 396.35 }, "34-38": { amb: 188.89, enf: 304.64, apt: 455.80 }, "39-43": { amb: 224.78, enf: 362.52, apt: 542.40 }, "44-48": { amb: 280.98, enf: 453.15, apt: 678.00 }, "49-53": { amb: 351.23, enf: 566.44, apt: 847.50 }, "54-58": { amb: 597.09, enf: 962.95, apt: 1440.75 }, "59+": { amb: 668.74, enf: 1078.50, apt: 1613.64 } }
+        }
+    }
+};
+
+function getFaixaCotacao(idade) {
+    idade = parseInt(idade);
+    if (idade <= 18) return { t: "00-18", k: "0-18" };
+    if (idade <= 23) return { t: "19-23", k: "19-23" };
+    if (idade <= 28) return { t: "24-28", k: "24-28" };
+    if (idade <= 33) return { t: "29-33", k: "29-33" };
+    if (idade <= 38) return { t: "34-38", k: "34-38" };
+    if (idade <= 43) return { t: "39-43", k: "39-43" };
+    if (idade <= 48) return { t: "44-48", k: "44-48" };
+    if (idade <= 53) return { t: "49-53", k: "49-53" };
+    if (idade <= 58) return { t: "54-58", k: "54-58" };
+    return { t: "59+", k: "59+" };
+}
+
+window.contarVidasCotacao = () => {
+    const val = document.getElementById('idadesInput').value;
+    const idades = val.split(/[\s,]+/).filter(i => i.trim() !== "");
+    document.getElementById('contadorVidas').innerText = `${idades.length} vidas`;
+};
+
+const fmtCotacao = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+window.gerarOrcamentoCotacao = () => {
+    const nomeCorretor = document.getElementById('nomeCorretor').value;
+    const telCorretor = document.getElementById('telCorretor').value;
+    const tipoContrato = document.querySelector('input[name="tipoContrato"]:checked').value;
+    const idadesStr = document.getElementById('idadesInput').value;
+    const plano = document.getElementById('nomePlano').value;
+    const copart = document.getElementById('copart').value;
+    
+    const querAmb = document.getElementById('checkAmb').checked;
+    const querEnf = document.getElementById('checkEnf').checked;
+    const querApt = document.getElementById('checkApt').checked;
+
+    if (!idadesStr) { mostrarToast('Informe as idades', 'warning'); return; }
+    const idades = idadesStr.split(/[\s,]+/).map(i => i.trim()).filter(i => i !== "");
+
+    let texto = `HAPVIDA - ${tipoContrato === 'PME' ? 'SUPER SIMPLES' : 'INDIVIDUAL'}\n`;
+    texto += `PLANO: ${plano} | COPART: ${copart}\n`;
+    if(nomeCorretor) texto += `CORRETOR: ${nomeCorretor} ${telCorretor ? '| ' + telCorretor : ''}\n`;
+    texto += `------------------------------------\n\n`;
+
+    let sAmb = 0, sEnf = 0, sApt = 0;
+    let sAmbD = 0, sEnfD = 0, sAptD = 0;
+
+    idades.forEach(idade => {
+        const info = getFaixaCotacao(idade);
+        const precos = tabelaPrecosCotacao[tipoContrato][plano][copart][info.k];
+        texto += `Idade: ${idade} anos (${info.t})\n`;
+
+        if (querAmb && precos.amb) {
+            const desc = precos.amb * 0.85;
+            texto += `• Amb: 3x de ${fmtCotacao(desc)} -> dps ${fmtCotacao(precos.amb)}\n`;
+            sAmb += precos.amb; sAmbD += desc;
+        }
+        if (querEnf && precos.enf) {
+            const desc = precos.enf * 0.85;
+            texto += `• Enf: 3x de ${fmtCotacao(desc)} -> dps ${fmtCotacao(precos.enf)}\n`;
+            sEnf += precos.enf; sEnfD += desc;
+        }
+        if (querApt && precos.apt) {
+            const desc = precos.apt * 0.85;
+            texto += `• Apt: 3x de ${fmtCotacao(desc)} -> dps ${fmtCotacao(precos.apt)}\n`;
+            sApt += precos.apt; sAptD += desc;
+        }
+        texto += `\n`;
+    });
+
+    texto += `------------------------------------\n`;
+    texto += `RESUMO DO GRUPO (${idades.length} vidas):\n\n`;
+    if (querAmb && sAmb > 0) texto += `TOTAL AMBULATORIAL:\n3 Meses: ${fmtCotacao(sAmbD)} | Total: ${fmtCotacao(sAmb)}\n\n`;
+    if (querEnf && sEnf > 0) texto += `TOTAL ENFERMARIA:\n3 Meses: ${fmtCotacao(sEnfD)} | Total: ${fmtCotacao(sEnf)}\n\n`;
+    if (querApt && sApt > 0) texto += `TOTAL APARTAMENTO:\n3 Meses: ${fmtCotacao(sAptD)} | Total: ${fmtCotacao(sApt)}\n`;
+    
+    document.getElementById('resultadoArea').value = texto.trim();
+};
+
+window.copiarTextoCotacao = () => {
+    const area = document.getElementById("resultadoArea");
+    if (!area.value) return;
+    navigator.clipboard.writeText(area.value).then(() => {
+        const btn = document.getElementById("btnCopiar");
+        btn.innerText = "COPIADO!";
+        setTimeout(() => btn.innerText = "COPIAR", 2000);
+    });
+};
     const hoje = new Date().toDateString();
     const uid = currentUser.nome.replace(/\s/g, '');
     const ultima = await get(ref(db, `users/${uid}/ultimaCotacao`));
     
-    // ESPAÇO PARA INJETAR SISTEMA DE COTAÇÃO
-    const modal = criarModal('💰 Cotação', `
-        <div id="cotacao-container" class="min-h-[400px] flex items-center justify-center">
-            <div class="text-center">
-                <i data-lucide="calculator" class="w-16 h-16 mx-auto mb-4 text-blue-500"></i>
-                <p class="text-lg font-bold mb-2">Sistema de Cotação</p>
-                <p class="text-sm opacity-70">Espaço reservado para injetar o sistema</p>
+    const modal = criarModal('💰 Cotação Hapvida', `
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- FORMULÁRIO -->
+            <div class="glass-card p-6 space-y-5">
+                <div class="grid grid-cols-2 gap-4 border-b border-white/20 pb-4">
+                    <div>
+                        <label class="block text-xs font-bold opacity-60 uppercase mb-1">Seu Nome</label>
+                        <input type="text" id="nomeCorretor" placeholder="Nome do Corretor" 
+                               class="w-full p-2 glass-card rounded-xl text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold opacity-60 uppercase mb-1">Telefone</label>
+                        <input type="text" id="telCorretor" placeholder="(00) 00000-0000" 
+                               class="w-full p-2 glass-card rounded-xl text-sm outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold mb-2">Tipo de Contrato</label>
+                    <div class="flex gap-4">
+                        <label class="flex-1 flex items-center justify-center gap-2 p-3 glass-card rounded-xl cursor-pointer hover:scale-105 transition-all has-[:checked]:bg-blue-500/30 has-[:checked]:border-2 has-[:checked]:border-blue-500">
+                            <input type="radio" name="tipoContrato" value="INDIVIDUAL" checked class="w-4 h-4">
+                            <span class="text-sm font-bold">Individual (CPF)</span>
+                        </label>
+                        <label class="flex-1 flex items-center justify-center gap-2 p-3 glass-card rounded-xl cursor-pointer hover:scale-105 transition-all has-[:checked]:bg-blue-500/30 has-[:checked]:border-2 has-[:checked]:border-blue-500">
+                            <input type="radio" name="tipoContrato" value="PME" class="w-4 h-4">
+                            <span class="text-sm font-bold">Super Simples</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-sm font-bold">Idades (separadas por vírgula)</label>
+                        <span id="contadorVidas" class="text-xs bg-orange-500 text-white px-3 py-1 rounded-full font-bold">0 vidas</span>
+                    </div>
+                    <input type="text" id="idadesInput" oninput="contarVidasCotacao()" placeholder="Ex: 5, 28, 42" 
+                           class="w-full p-3 glass-card rounded-xl outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Linha do Plano</label>
+                        <select id="nomePlano" class="w-full p-3 glass-card rounded-xl outline-none">
+                            <option value="NOSSO PLANO">NOSSO PLANO</option>
+                            <option value="NOSSO MÉDICO">NOSSO MÉDICO</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Coparticipação</label>
+                        <select id="copart" class="w-full p-3 glass-card rounded-xl outline-none">
+                            <option value="PARCIAL">PARCIAL</option>
+                            <option value="TOTAL">TOTAL</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold mb-3">Acomodações</label>
+                    <div class="flex flex-wrap gap-3">
+                        <label class="flex items-center gap-2 cursor-pointer glass-card px-4 py-2 rounded-xl hover:scale-105 transition-all">
+                            <input type="checkbox" id="checkAmb" class="w-4 h-4" checked>
+                            <span class="text-sm font-bold">Ambulatorial</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer glass-card px-4 py-2 rounded-xl hover:scale-105 transition-all">
+                            <input type="checkbox" id="checkEnf" class="w-4 h-4" checked>
+                            <span class="text-sm font-bold">Enfermaria</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer glass-card px-4 py-2 rounded-xl hover:scale-105 transition-all">
+                            <input type="checkbox" id="checkApt" class="w-4 h-4">
+                            <span class="text-sm font-bold">Apartamento</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button onclick="gerarOrcamentoCotacao()" class="w-full glossy bg-blue-600 text-white font-black py-4 rounded-xl hover:scale-105 transition-all shadow-lg uppercase">
+                    Gerar Orçamento
+                </button>
+            </div>
+
+            <!-- RESULTADO -->
+            <div class="glass-card flex flex-col">
+                <div class="p-4 bg-white/10 border-b border-white/20 flex justify-between items-center">
+                    <span class="font-bold uppercase text-xs">Visualização da Cotação</span>
+                    <div class="flex gap-2">
+                        <button onclick="copiarTextoCotacao()" id="btnCopiar" class="glass-card text-xs px-4 py-2 rounded-xl font-bold hover:scale-105 transition-all">
+                            COPIAR
+                        </button>
+                    </div>
+                </div>
+                <textarea id="resultadoArea" readonly 
+                          class="flex-1 p-4 bg-white/5 resize-none outline-none font-mono text-sm"
+                          placeholder="O resultado aparecerá aqui..."></textarea>
             </div>
         </div>
     `);
+    
+    lucide.createIcons();
+    
+    if (ultima.val() !== hoje) {
+        await update(ref(db, `users/${uid}`), { ultimaCotacao: hoje });
+        await ganharPontos('cotacao');
+        mostrarToast('+5 XP', 'success');
+    }
+};
     
     lucide.createIcons();
     
@@ -1722,4 +1927,5 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
