@@ -51,15 +51,101 @@
             border-color: rgba(100, 116, 139, 0.3);
         }
         
+        /* Funcionário do Mês - Borda Dourada Animada */
         @keyframes glow-gold { 
-            0%, 100% { box-shadow: 0 0 15px #ffd700; border-color: #ffd700; } 
-            50% { box-shadow: 0 0 30px #ffd700; border-color: #fff; } 
+            0%, 100% { 
+                box-shadow: 0 0 20px #ffd700, 0 0 30px #ffd700, inset 0 0 10px rgba(255,215,0,0.2); 
+                border-color: #ffd700; 
+            } 
+            50% { 
+                box-shadow: 0 0 40px #ffd700, 0 0 60px #ffd700, inset 0 0 20px rgba(255,215,0,0.4); 
+                border-color: #fff; 
+            } 
         }
         
         .card-f-mes { 
             animation: glow-gold 2s infinite; 
             border: 3px solid #ffd700 !important; 
-            background: rgba(255, 215, 0, 0.15) !important; 
+            background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05)) !important;
+            position: relative;
+        }
+        
+        .card-f-mes::before {
+            content: '⭐ FUNCIONÁRIO DO MÊS ⭐';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, #ffd700, #ffed4e);
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 10px rgba(255,215,0,0.5);
+        }
+        
+        /* Chat - Card com mensagem não lida */
+        .chat-unread {
+            background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.05)) !important;
+            border: 2px solid #22c55e !important;
+            animation: pulse-green 2s infinite;
+        }
+        
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 0 10px rgba(34,197,94,0.5); }
+            50% { box-shadow: 0 0 20px rgba(34,197,94,0.8); }
+        }
+        
+        /* Feed com nova postagem */
+        .feed-new-post {
+            animation: pulse-green 2s infinite;
+        }
+        
+        /* Badges com diferentes estilos */
+        .badge-lendario {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            animation: shine 2s infinite;
+            box-shadow: 0 4px 20px rgba(255,215,0,0.6);
+        }
+        
+        @keyframes shine {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+        
+        .badge-raro {
+            background: linear-gradient(135deg, #9333ea, #a855f7);
+            box-shadow: 0 4px 15px rgba(147,51,234,0.5);
+        }
+        
+        .badge-comum {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            box-shadow: 0 4px 15px rgba(59,130,246,0.4);
+        }
+        
+        /* Barra de Progresso XP */
+        .xp-bar {
+            height: 6px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 999px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+            border-radius: 999px;
+            transition: width 0.5s ease;
+            position: relative;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -100% 0; }
+            100% { background-position: 100% 0; }
         }
         
         .welcome-msg { 
@@ -166,21 +252,21 @@
             background: #1e293b;
         }
         
-        /* Mention autocomplete */
-        .mention-popup {
-            position: absolute;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
+        /* Status de Humor */
+        .status-humor {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
         }
         
-        [data-theme="dark"] .mention-popup {
-            background: #1e293b;
-            border: 1px solid rgba(100,116,139,0.3);
-        }
+        .status-focado { background: linear-gradient(135deg, #10b981, #34d399); color: white; }
+        .status-disponivel { background: linear-gradient(135deg, #3b82f6, #60a5fa); color: white; }
+        .status-sobrevivencia { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white; }
+        .status-18h { background: linear-gradient(135deg, #ef4444, #f87171); color: white; }
     </style>
 </head>
 <body class="flex flex-col" data-theme="light">
@@ -188,7 +274,8 @@
     <!-- Tela de Login -->
     <section id="tela-login" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-blue-400/20 backdrop-blur-3xl">
         <div class="glass-card w-full max-w-md p-10 text-center space-y-6">
-            <h2 class="text-3xl font-black italic drop-shadow-sm">Faça o login para continuar meu lindo</h2>
+            <div class="text-6xl mb-4">🏥</div>
+            <h2 class="text-3xl font-black italic drop-shadow-sm">Faça o login para continuar</h2>
             <div class="space-y-4">
                 <input type="text" id="login-user" placeholder="Email ou usuário" class="w-full p-4 rounded-2xl glass-card outline-none font-bold">
                 <input type="password" id="login-pass" placeholder="Senha" class="w-full p-4 rounded-2xl glass-card outline-none font-bold">
@@ -216,9 +303,16 @@
             </div>
         </div>
         
-        <div class="welcome-msg text-center truncate px-2">Bem-vindo(a), <span id="welcome-name">...</span></div>
+        <div class="welcome-msg text-center truncate px-2">
+            Bem-vindo(a), <span id="welcome-name">...</span>
+        </div>
         
         <div class="flex items-center gap-3">
+            <!-- Check-in Diário -->
+            <button id="btn-checkin" onclick="fazerCheckin()" class="hidden text-xs font-bold bg-green-500 hover:bg-green-600 px-3 py-1 rounded-lg transition-all">
+                ✓ Check-in
+            </button>
+            
             <!-- Theme Toggle -->
             <div class="theme-toggle" onclick="toggleTheme()">
                 <div class="theme-toggle-slider">
@@ -243,28 +337,44 @@
         
         <!-- Tela Menu -->
         <section id="tela-menu" class="space-y-6">
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-center uppercase text-[8px] font-black">
-                <div onclick="abrirFeed()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
+            <!-- Ícones do Hub -->
+            <div class="grid grid-cols-2 md:grid-cols-6 gap-3 text-center uppercase text-[8px] font-black">
+                <div id="icon-feed" onclick="abrirFeed()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
                     <i data-lucide="layout" class="mx-auto mb-1 text-purple-600 w-6 h-6"></i> Feed Social
                 </div>
-                <div onclick="abrirFerramentaCotacao()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
+                <div onclick="abrirCotacao()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
                     <i data-lucide="calculator" class="mx-auto mb-1 text-blue-600 w-6 h-6"></i> Cotação
                 </div>
-                <div onclick="abrirFerramenta('https://www.hapvida.com.br/site/carencia', 'carencia')" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
+                <div onclick="abrirCarencia()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
                     <i data-lucide="shield-check" class="mx-auto mb-1 text-green-600 w-6 h-6"></i> Carência
                 </div>
-                <div onclick="abrirFerramenta('https://www.hapvida.com.br/site/repique', 'repique')" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
+                <div onclick="abrirRepique()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
                     <i data-lucide="refresh-cw" class="mx-auto mb-1 text-orange-600 w-6 h-6"></i> Repique
                 </div>
                 <div onclick="abrirBadges()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
                     <i data-lucide="award" class="mx-auto mb-1 text-yellow-600 w-6 h-6"></i> Badges
+                </div>
+                <div onclick="abrirAnotacoes()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
+                    <i data-lucide="sticky-note" class="mx-auto mb-1 text-pink-600 w-6 h-6"></i> Anotações
+                </div>
+                <div onclick="abrirScripts()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
+                    <i data-lucide="file-text" class="mx-auto mb-1 text-indigo-600 w-6 h-6"></i> Scripts
+                </div>
+                <div onclick="abrirCalendario()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
+                    <i data-lucide="calendar" class="mx-auto mb-1 text-red-600 w-6 h-6"></i> Calendário
+                </div>
+                <div onclick="abrirChatbot()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
+                    <i data-lucide="bot" class="mx-auto mb-1 text-cyan-600 w-6 h-6"></i> Chatbot
+                </div>
+                <div onclick="tentarAcessoAdmin()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
+                    <i data-lucide="lock" class="mx-auto mb-1 text-gray-700 w-6 h-6"></i> Admin
                 </div>
             </div>
 
             <!-- Ranking do Mês -->
             <div class="glass-card p-5">
                 <h3 class="font-black mb-4 flex items-center gap-2 text-[10px] uppercase italic">
-                    <i data-lucide="trophy" class="text-yellow-500"></i> Ranking dos ADMs
+                    <i data-lucide="trophy" class="text-yellow-500"></i> Ranking do Mês
                 </h3>
                 <div id="lista-equipe" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
             </div>
@@ -280,12 +390,14 @@
                     <img id="post-user-img" src="" class="w-10 h-10 rounded-full object-cover">
                     <textarea id="feed-text" class="flex-1 bg-white/30 p-3 rounded-xl outline-none text-sm font-medium min-h-[80px]" placeholder="O que você está pensando? Use @ para mencionar alguém..."></textarea>
                 </div>
-                <div id="mention-popup" class="mention-popup hidden"></div>
                 <div class="flex justify-between items-center">
                     <div class="flex gap-2">
                         <input type="file" id="feed-media" class="hidden" accept="image/*" onchange="previewMedia(this)">
                         <button onclick="document.getElementById('feed-media').click()" class="p-2 bg-white/40 rounded-lg text-blue-600 hover:bg-white/60">
                             <i data-lucide="image" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="criarEnquete()" class="p-2 bg-white/40 rounded-lg text-purple-600 hover:bg-white/60">
+                            <i data-lucide="bar-chart" class="w-5 h-5"></i>
                         </button>
                     </div>
                     <button onclick="postarFeed()" class="glossy bg-blue-600 text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase hover:scale-105 transition-all">PUBLICAR</button>
@@ -302,105 +414,12 @@
             <div id="feed-posts" class="space-y-6"></div>
         </section>
 
-        <!-- Tela Badges -->
-        <section id="tela-badges" class="hidden max-w-4xl mx-auto space-y-6 pb-20">
-            <button onclick="abrirTela('tela-menu')" class="text-[9px] font-black uppercase text-blue-600 hover:text-blue-800">← Voltar</button>
-            
-            <div class="glass-card p-6">
-                <h2 class="text-2xl font-black mb-2 flex items-center gap-3">
-                    <i data-lucide="award" class="w-8 h-8 text-yellow-500"></i>
-                    Sistema de Badges
-                </h2>
-                <p class="text-sm opacity-70 mb-6">Conquiste badges especiais pela sua dedicação!</p>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="badges-grid"></div>
-            </div>
-        </section>
+        <!-- Outras telas serão adicionadas no script -->
 
     </main>
 
-    <!-- Painel de Notificações -->
-    <div id="notif-panel" class="hidden fixed top-[60px] right-4 w-80 max-h-[500px] glass-card p-4 z-50 overflow-y-auto no-scrollbar">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="font-black text-sm">Notificações</h3>
-            <button onclick="marcarTodasLidas()" class="text-[9px] font-bold text-blue-600 hover:text-blue-800">Marcar todas como lidas</button>
-        </div>
-        <div id="notif-list" class="space-y-2">
-            <p class="text-xs text-center opacity-50 py-8">Nenhuma notificação</p>
-        </div>
-    </div>
+    <!-- Modais e painéis serão criados dinamicamente -->
 
-    <!-- Chat Modal -->
-    <div id="chat-modal" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-[90] flex items-center justify-center p-4">
-        <div class="glass-card w-full max-w-4xl h-[600px] flex flex-col">
-            <!-- Chat Header -->
-            <div class="p-4 border-b border-white/20 flex justify-between items-center">
-                <h3 class="font-black text-lg flex items-center gap-2">
-                    <i data-lucide="message-circle" class="w-5 h-5"></i>
-                    Mensagens
-                </h3>
-                <button onclick="fecharChat()" class="hover:scale-110 transition-all">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            
-            <div class="flex-1 flex overflow-hidden">
-                <!-- Lista de Conversas -->
-                <div class="w-1/3 border-r border-white/20 overflow-y-auto no-scrollbar">
-                    <div id="chat-list" class="p-2 space-y-1"></div>
-                </div>
-                
-                <!-- Conversa Ativa -->
-                <div class="flex-1 flex flex-col">
-                    <div id="chat-messages" class="flex-1 p-4 overflow-y-auto no-scrollbar space-y-3">
-                        <p class="text-center text-sm opacity-50 py-20">Selecione uma conversa</p>
-                    </div>
-                    
-                    <!-- Input de Mensagem -->
-                    <div id="chat-input-area" class="hidden p-4 border-t border-white/20">
-                        <div class="flex gap-2">
-                            <input type="text" id="chat-input" placeholder="Digite sua mensagem..." class="flex-1 p-3 rounded-xl glass-card outline-none text-sm">
-                            <button onclick="enviarMensagem()" class="glossy bg-blue-600 text-white px-6 rounded-xl font-bold hover:scale-105 transition-all">
-                                <i data-lucide="send" class="w-5 h-5"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Admin -->
-    <div id="modal-admin" class="hidden fixed inset-0 bg-blue-900/30 backdrop-blur-md z-[60] flex items-center justify-center p-4">
-        <div class="glass-card w-full max-w-sm p-6 space-y-5">
-            <h3 class="text-xl font-black italic">Admin</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-[9px] font-black uppercase">Destaque: Funcionário do Mês</label>
-                    <select id="adm-f-mes" class="w-full p-2 glass-card text-[10px] font-bold mt-1"></select>
-                </div>
-                <div>
-                    <label class="text-[9px] font-black uppercase">Conceder Badge</label>
-                    <div class="flex gap-2 mt-1">
-                        <select id="adm-alvo" class="flex-1 p-2 glass-card text-[10px] font-bold"></select>
-                        <select id="adm-selo" class="flex-1 p-2 glass-card text-[10px] font-bold"></select>
-                    </div>
-                </div>
-                <button onclick="salvarAdmin()" class="glossy w-full bg-blue-600 text-white py-3 rounded-xl font-black uppercase text-[10px]">Salvar Configurações</button>
-            </div>
-            <button onclick="document.getElementById('modal-admin').classList.add('hidden')" class="w-full text-[9px] font-bold opacity-50 uppercase">Fechar</button>
-        </div>
-    </div>
-
-    <!-- Modal Cotação -->
-    <div id="modal-cotacao" class="hidden fixed inset-0 bg-white z-[100] overflow-y-auto">
-        <div class="p-4 bg-blue-900 text-white flex justify-between items-center sticky top-0">
-            <h2 class="font-black uppercase text-xs">Calculadora de Cotação</h2>
-            <button onclick="document.getElementById('modal-cotacao').classList.add('hidden')" class="font-bold text-xs">FECHAR [X]</button>
-        </div>
-        <div id="conteudo-cotacao"></div>
-    </div>
-
-    <script type="module" src="script-v3.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
