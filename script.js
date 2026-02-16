@@ -1204,15 +1204,7 @@ window.copiarTextoCotacao = () => {
         await ganharPontos('cotacao');
         mostrarToast('+5 XP', 'success');
     }
-};
-    
-    lucide.createIcons();
-    
-    if (ultima.val() !== hoje) {
-        await update(ref(db, `users/${uid}`), { ultimaCotacao: hoje });
-        await ganharPontos('cotacao');
-        mostrarToast('+5 XP', 'success');
-    }
+
 };
 
 window.abrirCarencia = async () => {
@@ -1929,6 +1921,7 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
 
