@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref, onValue, set, push, serverTimestamp, update, get, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyB69yq8gyn_hDn2Cbbhb1wwIpzvQp_dkwA",
@@ -11,12 +12,9 @@ const firebaseConfig = {
     appId: "1:865217946023:web:da6b0ea582d863ecd4d682"
 };
 
-
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
 
 // Estado Global
 let currentUser = null;
@@ -41,7 +39,7 @@ const BADGES = {
         color: "#9333EA"
     },
     "presidente": { 
-        t: "Futuro Presidente", 
+        t: "Futuro Presidente Hapvida", 
         d: "A cadeira da presidência te espera.", 
         r: "lendario",
         icon: "🏆",
@@ -105,10 +103,10 @@ const BADGES = {
     }
 };
 
-// ==================== SISTEMA DE LOGIN ====================
+// ==================== SISTEMA DE LOGIN COM FIREBASE AUTH ====================
 async function carregarEquipe() {
     try {
-        const response = await fetch('equipe.json');
+        const response = await fetch('equipe-v3.json');
         if (!response.ok) throw new Error('Falha ao carregar equipe');
         return await response.json();
     } catch (erro) {
@@ -118,37 +116,174 @@ async function carregarEquipe() {
     }
 }
 
-function validarCredenciais(usuario, senha, equipe) {
-    const SENHAS_VALIDAS = ['123', 'supimpa2024'];
-    const usuarioNormalizado = usuario.toLowerCase().trim();
+function extrairNomeDoEmail(email) {
+    // email: "cleide@lider-saude.com" -> retorna "cleide"
+    return email.split('@')[0];
+}
+
+async function buscarDadosUsuarioPorEmail(email) {
+    const equipe = await carregarEquipe();
+    const username = extrairNomeDoEmail(email);
     
-    if (!SENHAS_VALIDAS.includes(senha)) return null;
-    
-    return equipe.find(f => f.nome.toLowerCase() === usuarioNormalizado);
+    // Buscar por nome (case insensitive)
+    return equipe.find(pessoa => 
+        pessoa.nome.toLowerCase().includes(username.toLowerCase())
+    );
 }
 
 window.realizarLogin = async () => {
-    const inputUsuario = document.getElementById('login-user');
-    const inputSenha = document.getElementById('login-pass');
+    const emailInput = document.getElementById('login-user');
+    const senhaInput = document.getElementById('login-pass');
     
-    const equipe = await carregarEquipe();
-    const usuario = validarCredenciais(inputUsuario.value, inputSenha.value, equipe);
+    let email = emailInput.value.trim();
+    const senha = senhaInput.value;
     
-    if (usuario) {
-        currentUser = usuario;
-        const id = usuario.nome.replace(/\s/g, '');
+    // Validações
+    if (!email || !senha) {
+        mostrarToast('Preencha email e senha', 'warning');
+        return;
+    }
+    
+    // Se não tiver @, adicionar domínio padrão
+    if (!email.includes('@')) {
+        email = email + '@lider-saude.com';
+    }
+    
+    // Mostrar loading
+    const btnLogin = event.target;
+    const textoOriginal = btnLogin.textContent;
+    btnLogin.textContent = 'ENTRANDO...';
+    btnLogin.disabled = true;
+    
+    try {
+        // Autenticar com Firebase
+        const userCredential = await signInWithEmailAndPassword(auth, email, senha);
+        const firebaseUser = userCredential.user;
+        
+        // Buscar dados do usuário no JSON
+        const dadosUsuario = await buscarDadosUsuarioPorEmail(firebaseUser.email);
+        
+        if (!dadosUsuario) {
+            throw new Error('Usuário não encontrado na equipe');
+        }
+        
+        currentUser = {
+            ...dadosUsuario,
+            email: firebaseUser.email,
+            uid: firebaseUser.uid
+        };
         
         // Atualizar status online
-        await update(ref(db, `users/${id}`), { 
+        const userId = currentUser.nome.replace(/\s/g, '');
+        await update(ref(db, `users/${userId}`), { 
             status: 'online',
+            ultimoAcesso: serverTimestamp(),
+            email: firebaseUser.email,
+            uid: firebaseUser.uid
+        });
+        
+        // Salvar sessão
+        localStorage.setItem('supimpa_session', JSON.stringify(currentUser));
+        localStorage.setItem('supimpa_email', firebaseUser.email);
+        
+        // Inicializar app
+        init();
+        mostrarToast(`Bem-vindo(a), ${currentUser.nome}!`, 'success');
+        
+    } catch (erro) {
+        console.error('Erro no login:', erro);
+        
+        // Mensagens de erro específicas
+        let mensagem = 'Erro ao fazer login';
+        
+        if (erro.code === 'auth/invalid-credential' || erro.code === 'auth/wrong-password') {
+            mensagem = '❌ Usuário ou senha incorretos';
+        } else if (erro.code === 'auth/user-not-found') {
+            mensagem = '❌ Usuário não encontrado';
+        } else if (erro.code === 'auth/invalid-email') {
+            mensagem = '❌ Email inválido';
+        } else if (erro.code === 'auth/too-many-requests') {
+            mensagem = '⏱️ Muitas tentativas. Tente novamente mais tarde';
+        } else if (erro.message.includes('não encontrado')) {
+            mensagem = '❌ Este email não está cadastrado na equipe';
+        }
+        
+        mostrarToast(mensagem, 'error');
+        
+        // Resetar botão
+        btnLogin.textContent = textoOriginal;
+        btnLogin.disabled = false;
+    }
+};
+
+// Logout
+window.realizarLogout = async () => {
+    try {
+        // Atualizar status offline
+        const userId = currentUser.nome.replace(/\s/g, '');
+        await update(ref(db, `users/${userId}`), { 
+            status: 'offline',
             ultimoAcesso: serverTimestamp()
         });
         
-        localStorage.setItem('supimpa_session', JSON.stringify(currentUser));
-        init();
-        mostrarToast(`Bem-vindo(a), ${usuario.nome}!`, 'success');
-    } else {
-        mostrarToast('Usuário ou senha inválidos', 'error');
+        await signOut(auth);
+        localStorage.removeItem('supimpa_session');
+        localStorage.removeItem('supimpa_email');
+        
+        location.reload();
+    } catch (erro) {
+        console.error('Erro ao fazer logout:', erro);
+        mostrarToast('Erro ao sair', 'error');
+    }
+};
+
+// Redefinir senha
+window.redefinirSenha = async () => {
+    const email = currentUser?.email || prompt('Digite seu email:');
+    
+    if (!email) {
+        mostrarToast('Email é obrigatório', 'warning');
+        return;
+    }
+    
+    try {
+        await sendPasswordResetEmail(auth, email);
+        mostrarToast('📧 Email de redefinição enviado! Verifique sua caixa de entrada', 'success');
+    } catch (erro) {
+        console.error('Erro ao enviar email:', erro);
+        
+        if (erro.code === 'auth/user-not-found') {
+            mostrarToast('❌ Email não encontrado', 'error');
+        } else {
+            mostrarToast('Erro ao enviar email de redefinição', 'error');
+        }
+    }
+};
+
+// Esqueceu senha (na tela de login)
+window.esqueceuSenha = async () => {
+    let email = prompt('Digite seu email para redefinir a senha:');
+    
+    if (!email) return;
+    
+    // Se não tiver @, adicionar domínio
+    if (!email.includes('@')) {
+        email = email + '@lider-saude.com';
+    }
+    
+    try {
+        await sendPasswordResetEmail(auth, email);
+        mostrarToast('📧 Email de redefinição enviado! Verifique sua caixa de entrada', 'success');
+    } catch (erro) {
+        console.error('Erro:', erro);
+        
+        if (erro.code === 'auth/user-not-found') {
+            mostrarToast('❌ Email não encontrado', 'error');
+        } else if (erro.code === 'auth/invalid-email') {
+            mostrarToast('❌ Email inválido', 'error');
+        } else {
+            mostrarToast('Erro ao enviar email. Tente novamente', 'error');
+        }
     }
 };
 
@@ -515,7 +650,6 @@ async function criarElementoPost(post) {
     
     // Reações
     const reacoes = post.reactions || { like: 0, love: 0, haha: 0, sad: 0 };
-    const totalReacoes = Object.values(reacoes).reduce((a, b) => a + b, 0);
     
     const reactionsBar = document.createElement('div');
     reactionsBar.className = 'flex items-center justify-between border-t border-b border-white/20 py-3';
@@ -761,7 +895,7 @@ async function verificarConquistas(xp) {
 }
 
 // ==================== RANKING E EQUIPE ====================
-function carregarEquipe() {
+async function carregarEquipeRanking() {
     onValue(ref(db, 'users'), async (snapshot) => {
         const users = snapshot.val() || {};
         const configSnapshot = await get(ref(db, 'config'));
@@ -836,6 +970,46 @@ window.toggleTheme = () => {
     mostrarToast(`Tema ${newTheme === 'dark' ? 'escuro' : 'claro'} ativado`, 'success');
 };
 
+// ==================== PERFIL DO USUÁRIO ====================
+window.verMeuPerfil = () => {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4';
+    modal.onclick = (e) => {
+        if (e.target === modal) modal.remove();
+    };
+    
+    modal.innerHTML = `
+        <div class="glass-card max-w-md w-full p-6 space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-black">Meu Perfil</h3>
+                <button onclick="this.closest('.fixed').remove()" class="hover:scale-110 transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="text-center space-y-3">
+                <img src="${document.getElementById('nav-img').src}" class="w-24 h-24 rounded-full mx-auto border-4 border-blue-400">
+                <h4 class="text-lg font-black">${currentUser.nome}</h4>
+                <p class="text-sm opacity-70">${currentUser.cargo}</p>
+                <p class="text-sm font-bold text-blue-600">${document.getElementById('nav-xp').textContent}</p>
+                <p class="text-xs opacity-50">${currentUser.email}</p>
+            </div>
+            
+            <div class="space-y-2">
+                <button onclick="redefinirSenha()" class="w-full glossy bg-blue-600 text-white py-3 rounded-xl font-bold hover:scale-105 transition-all">
+                    🔑 Redefinir Senha
+                </button>
+                <button onclick="realizarLogout()" class="w-full bg-red-500/80 text-white py-3 rounded-xl font-bold hover:scale-105 transition-all">
+                    🚪 Sair
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    lucide.createIcons();
+};
+
 // ==================== UTILIDADES ====================
 function formatarTempo(timestamp) {
     if (!timestamp) return 'Agora';
@@ -862,13 +1036,14 @@ function mostrarToast(mensagem, tipo = 'info') {
     };
     
     const toast = document.createElement('div');
-    toast.className = `fixed bottom-4 right-4 ${cores[tipo]} text-white px-6 py-3 rounded-xl font-bold text-sm shadow-2xl z-[999] animate-bounce`;
+    toast.className = `fixed bottom-4 right-4 ${cores[tipo]} text-white px-6 py-3 rounded-xl font-bold text-sm shadow-2xl z-[999]`;
+    toast.style.animation = 'slideIn 0.3s ease';
     toast.textContent = mensagem;
     
     document.body.appendChild(toast);
     
     setTimeout(() => {
-        toast.style.animation = 'fadeOut 0.3s ease';
+        toast.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 }
@@ -912,10 +1087,6 @@ window.salvarAdmin = async () => {
     document.getElementById('modal-admin').classList.add('hidden');
 };
 
-window.verMeuPerfil = () => {
-    mostrarToast('Visualização de perfil em breve!', 'info');
-};
-
 // ==================== INICIALIZAÇÃO ====================
 async function init() {
     document.getElementById('tela-login').classList.add('hidden');
@@ -938,7 +1109,7 @@ async function init() {
     document.getElementById('nav-xp').textContent = `${userData.xp || 0} XP`;
     
     // Iniciar sistemas
-    carregarEquipe();
+    carregarEquipeRanking();
     carregarNotificacoes();
     
     // Preencher selects do Admin
@@ -960,10 +1131,23 @@ async function init() {
     lucide.createIcons();
 }
 
-// Verificar sessão
-const sessao = localStorage.getItem('supimpa_session');
-if (sessao) {
-    currentUser = JSON.parse(sessao);
-    init();
-}
-
+// Verificar sessão ao carregar
+auth.onAuthStateChanged(async (firebaseUser) => {
+    if (firebaseUser) {
+        const dadosUsuario = await buscarDadosUsuarioPorEmail(firebaseUser.email);
+        
+        if (dadosUsuario) {
+            currentUser = {
+                ...dadosUsuario,
+                email: firebaseUser.email,
+                uid: firebaseUser.uid
+            };
+            init();
+        }
+    } else {
+        // Não está logado, mostrar tela de login
+        document.getElementById('tela-login').classList.remove('hidden');
+        document.getElementById('main-header').classList.add('hidden');
+        document.getElementById('main-content').classList.add('hidden');
+    }
+});
