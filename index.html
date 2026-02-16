@@ -23,26 +23,10 @@
             background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 24px;
         }
-        .xp-bar-fill { background: linear-gradient(90deg, #3b82f6, #06b6d4); transition: width 0.5s ease; }
-        
-        @keyframes glow-gold { 0%, 100% { box-shadow: 0 0 10px #ffd700; border-color: #ffd700; } 50% { box-shadow: 0 0 25px #ffd700; border-color: #fff; } }
-        @keyframes glow-green { 0%, 100% { box-shadow: 0 0 5px #22c55e; } 50% { box-shadow: 0 0 20px #22c55e; } }
-        @keyframes pulse-icon { 0% { transform: scale(1); } 50% { transform: scale(1.1); color: #22c55e; } 100% { transform: scale(1); } }
-        
-        .card-f-mes { animation: glow-gold 2s infinite; border: 2px solid #ffd700 !important; background: rgba(255, 215, 0, 0.1) !important; }
-        .msg-alert { animation: glow-green 1.5s infinite; border: 1px solid #22c55e !important; }
-        .feed-alert { animation: pulse-icon 1.5s infinite; color: #22c55e !important; }
-        
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid white; position: absolute; bottom: 0; right: 0; }
-        .bg-online { background: #22c55e; }
-        .bg-almoço { background: #eab308; }
-        .bg-offline { background: #94a3b8; }
-        .bg-ausente { background: #ef4444; }
-        .hidden { display: none !important; }
-
-        /* Ajuste Fino para o Topo */
-        header { height: 50px; }
-        .welcome-msg { font-size: 10px; opacity: 0.8; letter-spacing: 0.5px; }
+        @keyframes glow-gold { 0%, 100% { box-shadow: 0 0 15px #ffd700; border-color: #ffd700; } 50% { box-shadow: 0 0 30px #ffd700; border-color: #fff; } }
+        .card-f-mes { animation: glow-gold 2s infinite; border: 3px solid #ffd700 !important; background: rgba(255, 215, 0, 0.15) !important; }
+        .welcome-msg { font-size: 10px; opacity: 0.9; font-weight: 800; text-transform: uppercase; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="flex flex-col">
@@ -58,129 +42,96 @@
         </div>
     </section>
 
-    <header id="main-header" class="hidden glossy bg-[#0054a6] text-white px-4 flex justify-between items-center sticky top-0 z-40">
+    <header id="main-header" class="hidden glossy bg-[#0054a6] text-white h-[50px] px-4 flex justify-between items-center sticky top-0 z-40">
         <div class="flex items-center gap-3">
             <h1 class="text-lg font-black italic tracking-tighter">S.O ED. FRUTIGER AERO</h1>
             <i id="notif-feed-icon" data-lucide="bell" class="w-4 h-4 cursor-pointer" onclick="abrirFeed()"></i>
         </div>
-
-        <div class="welcome-msg font-bold uppercase truncate max-w-[120px] sm:max-w-none">
-            Bem-vindo(a), <span id="welcome-name">...</span>
-        </div>
-
+        <div class="welcome-msg text-center truncate px-2">Bem-vindo(a), <span id="welcome-name">...</span></div>
         <div class="flex items-center gap-2 cursor-pointer" onclick="verMeuPerfil()">
-            <div class="text-right hidden sm:block">
-                <p id="nav-xp" class="text-[9px] font-black text-blue-200"></p>
-            </div>
+            <div class="text-right hidden sm:block"><p id="nav-xp" class="text-[9px] font-black text-blue-200"></p></div>
             <div class="relative">
                 <img id="nav-img" src="" class="w-8 h-8 rounded-full border border-white/50 object-cover bg-white/20">
-                <div id="nav-status" class="status-dot bg-offline"></div>
+                <div id="nav-status" class="w-3 h-3 rounded-full border-2 border-white absolute bottom-0 right-0"></div>
             </div>
         </div>
     </header>
 
     <main id="main-content" class="hidden flex-1 p-4 max-w-5xl mx-auto w-full space-y-6">
         
-        <section id="area-stories" class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
-            <div onclick="document.getElementById('story-file').click()" class="flex-shrink-0 w-14 h-14 rounded-full border-2 border-dashed border-blue-400 flex items-center justify-center cursor-pointer bg-white/30">
-                <i data-lucide="plus" class="text-blue-600 w-5 h-5"></i>
-                <input type="file" id="story-file" class="hidden" accept="image/*" onchange="postarStory(this)">
-            </div>
-            <div id="lista-stories" class="flex gap-4"></div>
-        </section>
-
         <section id="tela-menu" class="space-y-6">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center uppercase text-[8px] font-black">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-center uppercase text-[8px] font-black">
                 <div onclick="abrirFeed()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
-                    <i id="menu-feed-icon" data-lucide="layout" class="mx-auto mb-1 text-purple-600"></i> Feed Social
+                    <i data-lucide="layout" class="mx-auto mb-1 text-purple-600 w-5 h-5"></i> Feed Social
                 </div>
-                <div onclick="abrirFerramenta('https://www.hapvida.com.br/site/cotacao', 'cotacao')" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
-                    <i data-lucide="calculator" class="mx-auto mb-1 text-blue-600"></i> Cotação
+                <div onclick="abrirFerramentaCotação()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
+                    <i data-lucide="calculator" class="mx-auto mb-1 text-blue-600 w-5 h-5"></i> Cotação
                 </div>
                 <div onclick="abrirFerramenta('https://www.hapvida.com.br/site/carencia', 'carencia')" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
-                    <i data-lucide="shield-check" class="mx-auto mb-1 text-green-600"></i> Carência
+                    <i data-lucide="shield-check" class="mx-auto mb-1 text-green-600 w-5 h-5"></i> Carência
+                </div>
+                <div onclick="abrirFerramenta('https://www.hapvida.com.br/site/repique', 'repique')" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
+                    <i data-lucide="refresh-cw" class="mx-auto mb-1 text-orange-600 w-5 h-5"></i> Repique
                 </div>
                 <div onclick="tentarAcessoAdmin()" class="glass-card p-4 cursor-pointer hover:scale-105 transition-all">
-                    <i data-lucide="lock" class="mx-auto mb-1 text-gray-700"></i> Admin
+                    <i data-lucide="lock" class="mx-auto mb-1 text-gray-700 w-5 h-5"></i> Admin
                 </div>
             </div>
 
             <div class="glass-card p-5">
-                <h3 class="font-black text-blue-900 mb-4 flex items-center gap-2 text-[10px] uppercase italic"><i data-lucide="award"></i> Ranking ADM</h3>
+                <h3 class="font-black text-blue-900 mb-4 flex items-center gap-2 text-[10px] uppercase italic"><i data-lucide="award"></i> Ranking do Mês</h3>
                 <div id="lista-equipe" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
             </div>
         </section>
 
-        <section id="tela-perfil" class="hidden max-w-xl mx-auto space-y-4 pb-20">
-            <button onclick="abrirTela('tela-menu')" class="text-[9px] font-black uppercase text-blue-600"><i data-lucide="arrow-left" class="inline w-3 h-3"></i> Menu</button>
-            <div class="glass-card p-6 text-center space-y-5">
-                <div class="relative inline-block">
-                    <img id="perf-view-img" src="" class="w-32 h-32 mx-auto rounded-full border-4 border-white shadow-xl object-cover">
-                    <input type="file" id="change-photo" class="hidden" onchange="uploadFotoPerfil(this)">
-                    <label id="label-edit-photo" for="change-photo" class="hidden absolute bottom-0 right-0 p-2 bg-blue-600 rounded-full text-white cursor-pointer shadow-lg"><i data-lucide="camera" class="w-4 h-4"></i></label>
-                </div>
-                <div>
-                    <h2 id="perf-view-nome" class="text-xl font-black text-blue-900"></h2>
-                    <select id="status-select" onchange="mudarStatus(this.value)" class="hidden mt-2 text-[9px] font-black p-1 rounded-lg border border-blue-200 bg-white/50 outline-none">
-                        <option value="online">🟢 ONLINE</option>
-                        <option value="almoço">🟡 EM ALMOÇO</option>
-                        <option value="ausente">🔴 AUSENTE</option>
-                        <option value="offline">⚪ OFFLINE</option>
-                    </select>
-                </div>
-                <div class="pt-4 border-t border-white/30">
-                    <p class="text-[10px] font-black text-blue-900 uppercase mb-3">Fotos em Destaque</p>
-                    <div class="flex justify-center gap-3">
-                        <div onclick="triggerDestaque(1)" class="w-20 h-20 glass-card overflow-hidden border-2 border-white cursor-pointer"><img id="destaque-1" src="" class="w-full h-full object-cover"></div>
-                        <div onclick="triggerDestaque(2)" class="w-20 h-20 glass-card overflow-hidden border-2 border-white cursor-pointer"><img id="destaque-2" src="" class="w-full h-full object-cover"></div>
-                        <div onclick="triggerDestaque(3)" class="w-20 h-20 glass-card overflow-hidden border-2 border-white cursor-pointer"><img id="destaque-3" src="" class="w-full h-full object-cover"></div>
-                    </div>
-                    <input type="file" id="file-destaque" class="hidden" onchange="uploadDestaque(this)">
-                </div>
-                <div id="perf-view-badges" class="space-y-2 text-left"></div>
-                <button id="btn-logout" onclick="logout()" class="hidden text-red-500 font-black text-[9px] uppercase">Sair</button>
-            </div>
-        </section>
-
-        <section id="tela-chat" class="hidden flex flex-col h-[70vh] glass-card overflow-hidden">
-            <div class="p-3 glossy bg-blue-600 text-white flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <img id="chat-header-img" src="" class="w-8 h-8 rounded-full border border-white object-cover">
-                    <p id="chat-header-nome" class="font-black text-xs uppercase"></p>
-                </div>
-                <button onclick="abrirTela('tela-menu')" class="text-[10px] font-bold">VOLTAR</button>
-            </div>
-            <div id="chat-mensagens" class="flex-1 p-4 overflow-y-auto space-y-3 bg-white/5"></div>
-            <div class="p-3 bg-white/20 flex gap-2">
-                <input type="text" id="chat-input" class="flex-1 p-3 rounded-xl glass-card outline-none font-bold text-xs" placeholder="Mensagem...">
-                <button onclick="enviarMensagem()" class="bg-blue-600 text-white p-3 rounded-xl"><i data-lucide="send" class="w-4 h-4"></i></button>
-            </div>
-        </section>
-
-        <section id="tela-feed" class="hidden max-w-xl mx-auto space-y-4 pb-20">
+        <section id="tela-feed" class="hidden max-w-2xl mx-auto space-y-4 pb-20">
             <button onclick="abrirTela('tela-menu')" class="text-[9px] font-black uppercase text-blue-600">Voltar</button>
             <div class="glass-card p-4 space-y-3">
-                <textarea id="feed-text" class="w-full bg-white/30 p-3 rounded-xl outline-none text-xs font-medium" placeholder="O que está rolando?"></textarea>
-                <button onclick="postarFeed()" class="glossy bg-blue-600 text-white w-full py-2 rounded-xl font-black text-[10px] uppercase">POSTAR</button>
+                <textarea id="feed-text" class="w-full bg-white/30 p-3 rounded-xl outline-none text-xs font-medium" placeholder="O que você está pensando?"></textarea>
+                <div class="flex justify-between items-center">
+                    <div class="flex gap-2">
+                        <input type="file" id="feed-media" class="hidden" accept="image/*" onchange="previewMedia(this)">
+                        <button onclick="document.getElementById('feed-media').click()" class="p-2 bg-white/40 rounded-lg text-blue-600"><i data-lucide="image" class="w-4 h-4"></i></button>
+                    </div>
+                    <button onclick="postarFeed()" class="glossy bg-blue-600 text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase">PUBLICAR</button>
+                </div>
+                <div id="media-preview" class="hidden relative w-20 h-20 rounded-lg overflow-hidden border border-blue-200">
+                    <img id="img-preview" src="" class="w-full h-full object-cover">
+                    <button onclick="removerMedia()" class="absolute top-0 right-0 bg-red-500 text-white rounded-bl-lg p-1"><i data-lucide="x" class="w-3 h-3"></i></button>
+                </div>
             </div>
-            <div id="feed-posts" class="space-y-4"></div>
+            <div id="feed-posts" class="space-y-6"></div>
         </section>
 
-    </main>
+        </main>
 
     <div id="modal-admin" class="hidden fixed inset-0 bg-blue-900/30 backdrop-blur-md z-[60] flex items-center justify-center p-4">
         <div class="glass-card w-full max-w-sm p-6 space-y-5">
-            <h3 class="text-xl font-black text-blue-900 italic">Painel Admin</h3>
-            <div class="space-y-3">
-                <select id="adm-f-mes" class="w-full p-2 glass-card text-[10px] font-bold"></select>
-                <div class="flex gap-2">
-                    <select id="adm-alvo" class="flex-1 p-2 glass-card text-[10px] font-bold"></select>
-                    <select id="adm-selo" class="flex-1 p-2 glass-card text-[10px] font-bold"></select>
+            <h3 class="text-xl font-black text-blue-900 italic">Admin</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[9px] font-black text-blue-700 uppercase">Destaque: Funcionário do Mês</label>
+                    <select id="adm-f-mes" class="w-full p-2 glass-card text-[10px] font-bold mt-1"></select>
                 </div>
-                <button onclick="salvarAdmin()" class="glossy w-full bg-blue-600 text-white py-3 rounded-xl font-black uppercase text-[10px]">Confirmar Alterações</button>
+                <div>
+                    <label class="text-[9px] font-black text-blue-700 uppercase">Conceder Honraria</label>
+                    <div class="flex gap-2 mt-1">
+                        <select id="adm-alvo" class="flex-1 p-2 glass-card text-[10px] font-bold"></select>
+                        <select id="adm-selo" class="flex-1 p-2 glass-card text-[10px] font-bold"></select>
+                    </div>
+                </div>
+                <button onclick="salvarAdmin()" class="glossy w-full bg-blue-600 text-white py-3 rounded-xl font-black uppercase text-[10px]">Salvar Configurações</button>
             </div>
             <button onclick="document.getElementById('modal-admin').classList.add('hidden')" class="w-full text-[9px] font-bold text-gray-400 uppercase">Fechar</button>
         </div>
+    </div>
+
+    <div id="modal-cotacao" class="hidden fixed inset-0 bg-white z-[100] overflow-y-auto">
+        <div class="p-4 bg-blue-900 text-white flex justify-between items-center sticky top-0">
+            <h2 class="font-black uppercase text-xs">Calculadora de Cotação</h2>
+            <button onclick="document.getElementById('modal-cotacao').classList.add('hidden')" class="font-bold text-xs">FECHAR [X]</button>
+        </div>
+        <div id="conteudo-cotacao"></div>
     </div>
 
     <script type="module" src="script.js"></script>
