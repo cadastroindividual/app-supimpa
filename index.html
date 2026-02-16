@@ -3,204 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Supimpa v1.3</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0054a6">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
+    <title>App Supimpa 1.3 - Aero Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
     <style>
-        :root { --hap-blue: #0054a6; --hap-orange: #ff8200; }
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        .bg-blue-hapvida { background-color: var(--hap-blue); }
-        .text-blue-hapvida { color: var(--hap-blue); }
-        .text-orange-hapvida { color: var(--hap-orange); }
-        .card-menu { background: white; transition: all 0.2s ease; border-bottom: 4px solid transparent; cursor: pointer; }
+        :root { 
+            --fa-blue: #0078d7; 
+            --fa-green: #28a745; 
+            --fa-orange: #ff8200; 
+            --glass: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Fundo Aurora característico do Frutiger Aero */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 50%, #d1f2fb 100%);
+            background-attachment: fixed;
+            color: #0b2e4d; 
+        }
+
+        /* Efeito Glossy (Brilhante) para Botões e Cabeçalho */
+        .glossy {
+            background: linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.2) 48%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.05) 100%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 10px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        /* Efeito de Vidro (Glassmorphism) para os cards */
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15), inset 0 0 15px rgba(255,255,255,0.3);
+        }
+
+        .card-menu { 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            cursor: pointer; 
+        }
+        .card-menu:hover { 
+            transform: translateY(-5px) scale(1.05);
+            background: rgba(255, 255, 255, 0.6);
+        }
         .card-menu:active { transform: scale(0.95); }
-        .card-menu:hover { border-bottom: 4px solid var(--hap-orange); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
         .hidden { display: none; }
-        
-        /* Estilos Carência */
-        .liberado { border-left: 5px solid #10b981; background-color: #ecfdf5; color: #065f46; }
-        .bloqueado { border-left: 5px solid #ef4444; background-color: #fef2f2; color: #991b1b; }
-        
-        /* Destaque Funcionário do Mês */
-        .border-gold { border: 2px solid #ffd700 !important; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); }
-        .bg-gold-light { background-color: #fffdf0; }
-        
-        #pdf-export-container { position: absolute; left: -9999px; top: 0; opacity: 0; pointer-events: none; }
+
+        /* Estilo das bolhas de status (estilo Aqua/Aero) */
+        .status-bubble {
+            box-shadow: inset 0 -3px 5px rgba(0,0,0,0.2), inset 0 3px 5px rgba(255,255,255,0.5);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen flex flex-col">
 
-    <section id="tela-login" class="min-h-screen flex items-center justify-center p-4 bg-blue-hapvida">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-8 shadow-2xl text-center">
-            <h1 class="text-2xl font-extrabold italic text-blue-hapvida mb-2 uppercase tracking-tighter">App Supimpa</h1>
-            <p class="text-gray-400 text-[10px] mb-8 font-black uppercase tracking-widest italic">Faça o login para continuar, meu lindo</p>
-            <div class="space-y-4 text-left">
-                <div>
-                    <label class="text-[10px] font-black text-gray-400 uppercase ml-2 italic">Usuário</label>
-                    <input type="text" id="login-usuario" placeholder="Ex: rose" class="w-full p-4 bg-gray-100 rounded-2xl outline-none border-2 border-transparent focus:border-blue-hapvida transition-all font-bold">
+    <header class="glossy bg-[#0054a6] text-white py-8 px-4 shadow-xl text-center mb-6">
+        <h1 class="text-3xl font-extrabold tracking-tight italic drop-shadow-md">App Supimpa v1.3</h1>
+        <p class="text-blue-100 text-sm font-semibold opacity-90 uppercase tracking-widest">Aero Experience Backoffice</p>
+    </header>
+
+    <main class="flex-1 max-w-5xl mx-auto w-full p-4">
+        <section id="tela-menu" class="space-y-8 py-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div onclick="abrirTela('tela-cotacao')" class="glass-card card-menu p-6 flex flex-col items-center text-center">
+                    <div class="bg-blue-400/30 p-4 rounded-full mb-3 shadow-inner"><i data-lucide="calculator" class="text-blue-800"></i></div>
+                    <span class="text-xs font-black uppercase text-blue-900">Cotação</span>
                 </div>
-                <div>
-                    <label class="text-[10px] font-black text-gray-400 uppercase ml-2 italic">Senha</label>
-                    <input type="password" id="login-senha" placeholder="••••••••" class="w-full p-4 bg-gray-100 rounded-2xl outline-none border-2 border-transparent focus:border-blue-hapvida transition-all">
+                <div onclick="abrirTela('tela-repique')" class="glass-card card-menu p-6 flex flex-col items-center text-center">
+                    <div class="bg-red-400/30 p-4 rounded-full mb-3 shadow-inner"><i data-lucide="history" class="text-red-800"></i></div>
+                    <span class="text-xs font-black uppercase text-red-900">Repique</span>
                 </div>
-                <button onclick="fazerLogin()" id="btn-entrar" class="w-full bg-blue-hapvida text-white py-5 rounded-2xl font-black text-lg shadow-lg uppercase italic">Entrar</button>
-            </div>
-        </div>
-    </section>
-
-    <div id="conteudo-app" class="hidden">
-        <header class="bg-blue-hapvida text-white py-6 px-4 shadow-lg text-center relative">
-            <button onclick="fazerLogout()" class="absolute right-4 top-7 text-blue-200"><i data-lucide="log-out" class="w-5 h-5"></i></button>
-            <h1 class="text-2xl font-extrabold tracking-tight italic">App Supimpa v1.3</h1>
-            <p class="text-blue-100 text-sm opacity-80 uppercase font-bold tracking-widest">Ferramentas úteis bem bacana </p>
-        </header>
-
-        <main class="max-w-5xl mx-auto p-4">
-            <section id="tela-menu" class="space-y-6 py-4">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div onclick="abrirTela('tela-cotacao')" class="card-menu p-6 rounded-2xl flex flex-col items-center text-center">
-                        <div class="bg-blue-50 p-3 rounded-full mb-3 text-blue-hapvida"><i data-lucide="calculator"></i></div>
-                        <span class="text-[10px] font-black uppercase italic">Cotação</span>
-                    </div>
-                    <div onclick="abrirTela('tela-repique')" class="card-menu p-6 rounded-2xl flex flex-col items-center text-center">
-                        <div class="bg-red-50 p-3 rounded-full mb-3 text-red-600"><i data-lucide="history"></i></div>
-                        <span class="text-[10px] font-black uppercase italic text-red-600">Repique</span>
-                    </div>
-                    <div onclick="abrirTela('tela-carencia')" class="card-menu p-6 rounded-2xl flex flex-col items-center text-center">
-                        <div class="bg-green-50 p-3 rounded-full mb-3 text-green-600"><i data-lucide="shield-check"></i></div>
-                        <span class="text-[10px] font-black uppercase italic text-green-600">Carência</span>
-                    </div>
-                    <div onclick="abrirConfig()" class="card-menu p-6 rounded-2xl flex flex-col items-center text-center">
-                        <div class="bg-gray-100 p-3 rounded-full mb-3 text-gray-400"><i data-lucide="lock"></i></div>
-                        <span class="text-[10px] font-black uppercase italic text-gray-400">Admin</span>
-                    </div>
+                <div onclick="abrirTela('tela-carencia')" class="glass-card card-menu p-6 flex flex-col items-center text-center">
+                    <div class="bg-green-400/30 p-4 rounded-full mb-3 shadow-inner"><i data-lucide="shield-check" class="text-green-800"></i></div>
+                    <span class="text-xs font-black uppercase text-green-900">Carência</span>
                 </div>
-
-                <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-blue-hapvida mb-4 flex items-center gap-2 uppercase italic text-sm"><i data-lucide="zap" class="w-4 h-4 text-orange-hapvida"></i> ADMS DE ALTA PERFORMANCE</h3>
-                    <div id="lista-adms" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-                </div>
-            </section>
-
-            <section id="tela-cotacao" class="hidden py-4">
-                <button onclick="abrirTela('tela-menu')" class="mb-4 text-blue-hapvida font-bold italic text-xs uppercase flex items-center gap-1"><i data-lucide="chevron-left" class="w-4 h-4"></i> Voltar</button>
-                <div class="bg-white p-6 rounded-3xl shadow-lg border-t-8 border-blue-600">
-                    <h2 class="text-xl font-black text-center mb-6 uppercase italic">Cotação</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="text" id="nomeCorretor" placeholder="Nome do Corretor" class="p-4 bg-gray-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-hapvida transition-all font-bold">
-                        <input type="text" id="telCorretor" placeholder="WhatsApp" class="p-4 bg-gray-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-hapvida transition-all font-bold">
-                    </div>
-                    <div class="mt-4 p-4 bg-blue-50 rounded-2xl flex justify-center gap-6">
-                        <label class="flex items-center gap-2 font-bold text-sm"><input type="radio" name="tipoContrato" value="INDIVIDUAL" checked> INDIVIDUAL</label>
-                        <label class="flex items-center gap-2 font-bold text-sm"><input type="radio" name="tipoContrato" value="PME"> SUPER SIMPLES</label>
-                    </div>
-                    <div class="mt-4">
-                        <textarea id="idadesInput" oninput="contarVidas()" placeholder="Digite as idades (ex: 25, 30, 2)" class="w-full p-4 bg-gray-50 rounded-2xl h-24 outline-none border-2 border-transparent focus:border-blue-hapvida transition-all font-bold"></textarea>
-                        <p id="contadorVidas" class="text-[10px] font-black text-blue-hapvida mt-1 ml-2 uppercase">0 vidas</p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 mt-4">
-                        <select id="nomePlano" class="p-4 bg-gray-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-hapvida transition-all font-bold">
-                            <option value="NOSSO MÉDICO">NOSSO MÉDICO</option>
-                            <option value="NOSSO PLANO">NOSSO PLANO</option>
-                        </select>
-                        <select id="copart" class="p-4 bg-gray-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-hapvida transition-all font-bold">
-                            <option value="PARCIAL">COPARTICIPAÇÃO PARCIAL</option>
-                            <option value="TOTAL">COPARTICIPAÇÃO TOTAL</option>
-                        </select>
-                    </div>
-                    <div class="flex flex-wrap gap-4 mt-6 justify-center bg-gray-50 p-4 rounded-2xl">
-                        <label class="flex items-center gap-2 text-xs font-bold"><input type="checkbox" id="checkAmb" checked> AMBULATORIAL</label>
-                        <label class="flex items-center gap-2 text-xs font-bold"><input type="checkbox" id="checkEnf" checked> ENFERMARIA</label>
-                        <label class="flex items-center gap-2 text-xs font-bold"><input type="checkbox" id="checkApt" checked> APARTAMENTO</label>
-                    </div>
-                    <button onclick="gerarOrcamento()" class="w-full bg-blue-hapvida text-white py-5 rounded-2xl font-black mt-6 shadow-lg uppercase italic">Gerar Cotação</button>
-                    
-                    <div id="areaResultado" class="mt-8 hidden">
-                        <textarea id="resultadoArea" readonly class="w-full p-6 bg-gray-900 text-green-400 font-mono text-xs rounded-3xl h-64 outline-none border-4 border-gray-800"></textarea>
-                        <div class="grid grid-cols-2 gap-4 mt-4">
-                            <button onclick="copiarTexto()" id="btnCopiar" class="bg-gray-800 text-white py-4 rounded-2xl font-bold text-sm uppercase">Copiar Texto</button>
-                            <button onclick="exportarPDF()" id="btnPDF" class="bg-red-600 text-white py-4 rounded-2xl font-bold text-sm uppercase">Baixar PDF</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="tela-carencia" class="hidden py-4">
-                <button onclick="abrirTela('tela-menu')" class="mb-4 text-blue-hapvida font-bold italic text-xs uppercase flex items-center gap-1"><i data-lucide="chevron-left" class="w-4 h-4"></i> Voltar</button>
-                <div class="bg-white p-6 rounded-3xl shadow-lg border-t-8 border-blue-600 max-w-xl mx-auto">
-                    <h2 class="text-xl font-black mb-6 uppercase italic text-center text-blue-hapvida">Calculadora de Carência</h2>
-                    <div class="mb-6">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-2">Data de Início do Plano</label>
-                        <input type="date" id="dataVigencia" onchange="calcularCarencia()" class="w-full p-4 bg-gray-50 border-2 border-blue-100 rounded-2xl outline-none font-bold text-center focus:border-orange-hapvida">
-                    </div>
-                    <div id="resultadoCarencia" class="space-y-3 font-bold">
-                        </div>
-                </div>
-            </section>
-
-            <section id="tela-repique" class="hidden py-4">
-                <button onclick="abrirTela('tela-menu')" class="mb-4 text-blue-hapvida font-bold italic text-xs uppercase flex items-center gap-1"><i data-lucide="chevron-left" class="w-4 h-4"></i> Voltar</button>
-                <div class="bg-white p-8 rounded-3xl shadow-lg max-w-md mx-auto border-t-8 border-red-600">
-                    <h2 class="text-xl font-black text-center mb-6 uppercase italic">Análise de Repique</h2>
-                    <div class="space-y-4">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase ml-2">Data Adesão Anterior</label>
-                        <input type="date" id="dataAdesao" class="w-full p-4 bg-gray-50 border-2 rounded-2xl outline-none font-bold">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase ml-2">Data Cancelamento</label>
-                        <input type="date" id="dataCancelamento" class="w-full p-4 bg-gray-50 border-2 rounded-2xl outline-none font-bold">
-                        <label class="flex items-center gap-3 bg-gray-50 p-4 rounded-2xl cursor-pointer">
-                            <input type="checkbox" id="inadimplente" class="w-6 h-6 accent-red-600"> 
-                            <span class="font-bold text-sm uppercase italic">Houve Inadimplência?</span>
-                        </label>
-                        <button onclick="calcularRepique()" class="w-full bg-red-600 text-white py-5 rounded-2xl font-black text-lg shadow-lg uppercase italic">Verificar Status</button>
-                        <div id="resultadoRepique" class="mt-6 p-6 rounded-2xl font-black hidden text-xl uppercase italic text-center"></div>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <footer class="text-center py-8 text-gray-400">
-            <p class="text-[11px] font-bold uppercase tracking-widest italic">Desenvolvido por Narry ;-)</p>
-            <p class="text-[10px] font-black text-red-500 mt-1 uppercase italic">Pra cima deles Flamengoo</p>
-        </footer>
-    </div>
-
-    <div id="pdf-export-container">
-        <div id="pdf-template" style="width: 800px; padding: 50px; background: white; font-family: Arial, sans-serif;">
-            <div style="border-bottom: 5px solid #004691; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h1 style="color: #004691; margin: 0; font-size: 32px;">COTAÇÃO HAPVIDA</h1>
-                    <p id="pdf-data-emissao" style="color: #666; margin: 5px 0;"></p>
+                <div onclick="abrirConfig()" class="glass-card card-menu p-6 flex flex-col items-center text-center opacity-80">
+                    <div class="bg-gray-400/30 p-4 rounded-full mb-3 shadow-inner"><i data-lucide="lock" class="text-gray-700"></i></div>
+                    <span class="text-xs font-black uppercase text-gray-700">Admin</span>
                 </div>
             </div>
-            <pre id="pdf-corpo" style="white-space: pre-wrap; font-size: 16px; line-height: 1.6; color: #333; font-family: monospace;"></pre>
-            <div style="margin-top: 50px; padding-top: 20px; border-top: 1px solid #eee;">
-                <p id="pdf-nome-corretor" style="font-weight: bold; color: #004691; margin: 0; font-size: 18px;"></p>
-                <p id="pdf-tel-corretor" style="color: #666; margin: 5px 0; font-size: 16px;"></p>
-            </div>
-        </div>
-    </div>
 
-    <div id="modal-config" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl">
-            <h3 class="text-xl font-bold mb-6 text-blue-hapvida uppercase italic">Ajustes do Admin</h3>
-            <label class="block text-[10px] font-black text-gray-400 mb-1 text-left ml-2 uppercase italic">Funcionário do Mês:</label>
-            <input type="text" id="input-destaque" class="w-full p-4 bg-gray-50 border-2 rounded-2xl mb-4 outline-none font-bold italic">
-            <button onclick="salvarConfig()" class="w-full bg-blue-hapvida text-white py-4 rounded-2xl font-black shadow-lg uppercase italic">Salvar na Nuvem</button>
-            <button onclick="fecharConfig()" class="w-full mt-4 text-gray-400 text-xs font-bold uppercase italic">Fechar</button>
+            <div class="glass-card p-6">
+                <h3 class="font-black text-blue-900 mb-6 flex items-center gap-2 text-lg italic"><i data-lucide="users"></i> Monitoramento em Tempo Real</h3>
+                <div id="lista-adms" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+        </section>
+
+        <section id="tela-carencia" class="hidden py-4">
+            <button onclick="abrirTela('tela-menu')" class="mb-6 flex items-center gap-2 text-blue-800 font-black hover:underline px-4 py-2 glass-card inline-flex">
+                <i data-lucide="chevron-left"></i> VOLTAR
+            </button>
+            <div class="glass-card p-8 max-w-xl mx-auto">
+                <h2 class="text-2xl font-black text-center mb-6 italic text-green-900">Calculadora de Carência</h2>
+                <input type="date" id="dataVigencia" onchange="calcularCarencia()" class="w-full p-4 glass-card border-white/50 mb-6 outline-none font-bold text-blue-900 shadow-inner">
+                <div id="resultadoCarencia" class="space-y-3"></div>
+            </div>
+        </section>
+
+        <section id="tela-repique" class="hidden py-4 text-center">
+            <button onclick="abrirTela('tela-menu')" class="mb-6 flex items-center gap-2 text-blue-800 font-black mx-auto glass-card px-4 py-2">
+                <i data-lucide="chevron-left"></i> VOLTAR
+            </button>
+            <div class="glass-card p-8 max-w-md mx-auto">
+                <h2 class="text-3xl font-black mb-6 text-red-900 italic">Análise de Repique</h2>
+                <div class="space-y-4 text-left">
+                    <input type="date" id="dataAdesao" class="w-full p-4 glass-card border-white/50 outline-none font-bold shadow-inner">
+                    <input type="date" id="dataCancelamento" class="w-full p-4 glass-card border-white/50 outline-none font-bold shadow-inner">
+                    <label class="flex items-center gap-3 glass-card p-4">
+                        <input type="checkbox" id="inadimplente" class="w-6 h-6 rounded-full accent-red-600"> 
+                        <span class="font-bold text-red-900">Inadimplente?</span>
+                    </label>
+                    <button onclick="calcularRepique()" class="glossy w-full bg-red-600 text-white py-5 rounded-2xl font-black text-xl shadow-lg hover:brightness-110 active:scale-95 transition-all">VERIFICAR</button>
+                    <div id="resultadoRepique" class="mt-6 p-6 rounded-2xl font-black hidden text-xl uppercase glass-card"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tela-cotacao" class="hidden py-4 text-center">
+            <button onclick="abrirTela('tela-menu')" class="mb-6 flex items-center gap-2 text-blue-800 font-bold glass-card px-4 py-2">
+                <i data-lucide="chevron-left"></i> VOLTAR
+            </button>
+            <div class="glass-card p-10 italic">
+                <i data-lucide="construction" class="mx-auto w-16 h-16 mb-4 text-blue-600 animate-bounce"></i>
+                <h2 class="text-3xl font-black text-blue-900">Cotação em breve...</h2>
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center py-8">
+        <p class="text-[12px] font-black uppercase tracking-tighter text-blue-900/60 shadow-sm">Desenvolvido por Narry ;-)</p>
+        <p class="text-[11px] font-black text-red-600 mt-1 uppercase italic drop-shadow-sm">Pra cima deles Flamengoo 🔴⚫</p>
+    </footer>
+
+    <div id="modal-config" class="hidden fixed inset-0 bg-blue-900/30 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-sm p-8 border-white">
+            <h3 class="text-2xl font-black mb-6 text-blue-900 italic">Ajustes Admin</h3>
+            <label class="block text-xs font-black text-blue-700 mb-1 uppercase tracking-widest">Funcionário do Mês:</label>
+            <input type="text" id="input-destaque" class="w-full p-4 glass-card border-white/50 mb-4 outline-none font-bold shadow-inner">
+            <button onclick="salvarConfig()" class="glossy w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg mb-2">SALVAR</button>
+            <button onclick="fecharConfig()" class="w-full mt-2 text-blue-900/50 text-xs font-black hover:text-blue-900">FECHAR</button>
         </div>
     </div>
 
     <script type="module" src="script.js"></script>
 </body>
 </html>
-
