@@ -83,6 +83,13 @@ const PONTOS = {
     enquete_criar: 5, enquete_votar: 3, anotacao: 5, cotacao: 5, repique: 5, carencia: 5,
     mensagem: 3, badge_comum: 10, badge_raro: 20, badge_lendario: 100
 };
+function isAdmin() {
+    if (!currentUser || !currentUser.nome) return false;
+
+    return ADMINS
+        .map(a => a.toLowerCase().trim())
+        .includes(currentUser.nome.toLowerCase().trim());
+}
 
 // ==================== LOGIN ====================
 async function carregarEquipe() {
@@ -830,7 +837,7 @@ window.removerCardAnotacao = async (cardId) => {
 
 // ==================== SCRIPTS COM CARDS ====================
 window.abrirScripts = () => {
-    const ehAdmin = ADMINS.includes(currentUser.nome);
+    const ehAdmin = isAdmin());
     const modal = criarModal('📚 Wiki de Scripts', `
         ${ehAdmin ? '<button onclick="criarCardScript()" class="w-full glossy bg-green-600 text-white py-3 rounded-xl font-bold mb-4">➕ Novo Script</button>' : ''}
         <div id="scripts-cards" class="space-y-3"></div>
@@ -853,7 +860,7 @@ async function carregarScripts() {
                     <h4 class="font-bold text-sm">${s.titulo}</h4>
                     <p class="text-xs opacity-60">${s.categoria}</p>
                 </div>
-                ${ADMINS.includes(currentUser.nome) ? `
+                ${isAdmin()) ? `
                     <div class="flex gap-2">
                         <button onclick="editarScript('${c.key}')" class="text-blue-500"><i data-lucide="edit" class="w-4 h-4"></i></button>
                         <button onclick="removerScript('${c.key}')" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
@@ -909,10 +916,6 @@ window.abrirCalendario = () => {
                 📅 Novo Evento
             </button>
 
-            <button onclick="resetarXP()" 
-                class="w-full glossy bg-red-600 text-white py-3 rounded-xl font-bold mb-4">
-                🔥 Resetar Ranking Geral
-            </button>
         ` : ''}
 
         <div id="eventos-lista" class="space-y-3"></div>
@@ -1537,7 +1540,7 @@ window.abrirConversaComPerfil = async (nome) => {
 
 // ==================== ADMIN COMPLETO ====================
 window.tentarAcessoAdmin = () => {
-    if (!ADMINS.includes(currentUser.nome)) {
+    if (!isAdmin()) {
         return mostrarToast('❌ ACESSO NEGADO', 'error');
     }
     
@@ -1578,7 +1581,10 @@ window.tentarAcessoAdmin = () => {
                 <label class="text-xs font-bold block mb-1">Desafios Ativos</label>
                 <div id="desafios-lista" class="space-y-2 max-h-40 overflow-y-auto"></div>
             </div>
-            
+              <button onclick="resetarXP()" 
+                class="w-full glossy bg-red-600 text-white py-3 rounded-xl font-bold mb-4">
+                🔥 Resetar Ranking Geral
+            </button>
             <button onclick="salvarAdmin()" class="w-full glossy bg-blue-600 text-white py-3 rounded-xl font-bold">💾 Salvar Configurações</button>
         </div>
     `);
@@ -1712,7 +1718,7 @@ async function carregarDesafiosAtivos() {
         div.innerHTML = `
             <p class="font-bold">${d.texto}</p>
             <p class="opacity-60">${d.xp} XP | ${d.hashtags.join(' ')}</p>
-            ${ADMINS.includes(currentUser.nome) ? `
+            ${isAdmin()) ? `
                 <button onclick="removerDesafio('${c.key}')" class="text-red-500 text-xs mt-1">Remover</button>
             ` : ''}
         `;
@@ -1967,6 +1973,7 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
 
