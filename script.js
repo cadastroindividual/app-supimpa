@@ -1567,28 +1567,29 @@ window.tentarAcessoAdmin = () => {
     }
     
     const modal = criarModal('⚙️ Painel Admin', `
-        <div class="space-y-4">
-            <div>
-                <label class="text-xs font-bold block mb-1">Funcionário do Mês</label>
-                <select id="adm-f-mes" class="w-full p-3 glass-card rounded-xl"></select>
-            </div>
-            
-            <div>
-                <label class="text-xs font-bold block mb-1">Alterar Setor</label>
-                <div class="flex gap-2">
-                    <select id="adm-user-setor" class="flex-1 p-3 glass-card rounded-xl"></select>
-                    <input type="text" id="adm-novo-setor" placeholder="Novo setor..." class="flex-1 p-3 glass-card rounded-xl outline-none">
-                </div>
-                <button onclick="alterarSetor()" class="w-full mt-2 glossy bg-blue-600 text-white py-2 rounded-xl font-bold">Salvar Setor</button>
-            </div>
-            
-            <div>
-                <label class="text-xs font-bold block mb-1">Conceder Badge</label>
-                <div class="flex gap-2">
-                    <select id="adm-alvo" class="flex-1 p-3 glass-card rounded-xl"></select>
-                    <select id="adm-selo" class="flex-1 p-3 glass-card rounded-xl"></select>
-                </div>
-            </div>
+   <div class="space-y-4">
+
+    <div>
+        <p class="font-bold text-sm mb-1">Funcionário do mês</p>
+        <select id="adm-f-mes" class="w-full glass-card p-2 rounded-xl"></select>
+        <button onclick="salvarFuncionarioMes()"
+        class="w-full glossy bg-blue-600 text-white py-2 rounded-xl font-bold mt-2">
+            Salvar Funcionário do Mês
+        </button>
+    </div>
+
+    <div>
+        <p class="font-bold text-sm mb-1">Conceder badge</p>
+        <select id="adm-alvo" class="w-full glass-card p-2 rounded-xl mb-2"></select>
+        <select id="adm-selo" class="w-full glass-card p-2 rounded-xl"></select>
+        <button onclick="concederBadgeAdmin()"
+        class="w-full glossy bg-purple-600 text-white py-2 rounded-xl font-bold mt-2">
+            Conceder Badge
+        </button>
+    </div>
+
+</div>
+
             
             <div>
                 <label class="text-xs font-bold block mb-1">Desafio Relâmpago</label>
@@ -2018,6 +2019,7 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
 
