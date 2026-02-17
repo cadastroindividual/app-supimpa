@@ -1652,41 +1652,64 @@ window.alterarSetor = async () => {
     document.getElementById('adm-novo-setor').value = '';
 };
 
-window.salvarAdmin = async () => {
+// ==================== ADMIN AÇÕES INDIVIDUAIS ====================
+
+// FUNCIONÁRIO DO MÊS
+window.salvarFuncionarioMes = async () => {
+
     const fMes = document.getElementById('adm-f-mes').value;
-    const alvo = document.getElementById('adm-alvo').value;
-    const selo = document.getElementById('adm-selo').value;
-    
-    if (fMes) {
-        const configSnap = await get(ref(db, 'config/funcionarioMes'));
-        const anterior = configSnap.val();
-        
-        await set(ref(db, 'config/funcionarioMes'), fMes);
-        
-        if (anterior && anterior !== fMes) {
-            const vezesSnap = await get(ref(db, `users/${anterior}/vezesFunc`));
-            await update(ref(db, `users/${anterior}`), { vezesFunc: (vezesSnap.val() || 0) });
-        }
-        
-        const vezesSnap = await get(ref(db, `users/${fMes}/vezesFunc`));
-        await update(ref(db, `users/${fMes}`), { vezesFunc: (vezesSnap.val() || 0) + 1 });
-    }
-    
-    if (alvo && selo) {
-        await update(ref(db, `users/${alvo}/badges`), { [selo]: true });
-        const raridade = BADGES[selo].r;
-        const pontos = raridade === 'lendario' ? 100 : raridade === 'raro' ? 20 : 10;
-        const xpSnap = await get(ref(db, `users/${alvo}/xp`));
-        await set(ref(db, `users/${alvo}/xp`), (xpSnap.val() || 0) + pontos);
-        
-        criarNotificacao('badge', {
-            de: 'Admin',
-            mensagem: `Você ganhou o badge ${BADGES[selo].t}! +${pontos} XP`,
-            userId: alvo
+    if (!fMes) return mostrarToast('Selecione alguém', 'warning');
+
+    const configSnap = await get(ref(db, 'config/funcionarioMes'));
+    const anterior = configSnap.val();
+
+    if (anterior === fMes)
+        return mostrarToast('Já é o funcionário atual', 'warning');
+
+    await set(ref(db, 'config/funcionarioMes'), fMes);
+
+    // remove do antigo
+    if (anterior) {
+        const vezesSnap = await get(ref(db, `users/${anterior}/vezesFunc`));
+        await update(ref(db, `users/${anterior}`), {
+            vezesFunc: Math.max((vezesSnap.val() || 1) - 1, 0)
         });
     }
-    
-    mostrarToast('✅ Salvo!', 'success');
+
+    // adiciona no novo
+    const vezesSnap = await get(ref(db, `users/${fMes}/vezesFunc`));
+    await update(ref(db, `users/${fMes}`), {
+        vezesFunc: (vezesSnap.val() || 0) + 1
+    });
+
+    mostrarToast('🏆 Funcionário do mês atualizado!', 'success');
+};
+
+
+// CONCEDER BADGE
+window.concederBadgeAdmin = async () => {
+
+    const alvo = document.getElementById('adm-alvo').value;
+    const selo = document.getElementById('adm-selo').value;
+
+    if (!alvo || !selo)
+        return mostrarToast('Selecione usuário e badge', 'warning');
+
+    await update(ref(db, `users/${alvo}/badges/${selo}`), true);
+
+    const raridade = BADGES[selo].r;
+    const pontos = raridade === 'lendario' ? 100 : raridade === 'raro' ? 20 : 10;
+
+    const xpSnap = await get(ref(db, `users/${alvo}/xp`));
+    await set(ref(db, `users/${alvo}/xp`), (xpSnap.val() || 0) + pontos);
+
+    criarNotificacao('badge', {
+        de: 'Admin',
+        mensagem: `Você ganhou o badge ${BADGES[selo].t}! +${pontos} XP`,
+        userId: alvo
+    });
+
+    mostrarToast('🏅 Badge concedido!', 'success');
 };
 
 window.criarDesafio = async () => {
@@ -1995,6 +2018,7 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
 
