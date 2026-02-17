@@ -1740,7 +1740,7 @@ async function carregarDesafiosAtivos() {
         div.innerHTML = `
             <p class="font-bold">${d.texto}</p>
             <p class="opacity-60">${d.xp} XP | ${d.hashtags.join(' ')}</p>
-            ${isAdmin()) ? `
+            ${isAdmin() ? `
                 <button onclick="removerDesafio('${c.key}')" class="text-red-500 text-xs mt-1">Remover</button>
             ` : ''}
         `;
@@ -1995,6 +1995,7 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
 
