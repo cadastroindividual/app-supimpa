@@ -50,6 +50,38 @@ window.resetarXP = async () => {
     }
 };
 
+// ==================== PREENCHER SELECTS ADMIN ====================
+async function preencherSelectsAdmin() {
+
+    const snap = await get(ref(db, 'users'));
+    if (!snap.exists()) return;
+
+    const users = snap.val();
+
+    const fMes = document.getElementById('adm-f-mes');
+    const alvo = document.getElementById('adm-alvo');
+    const selo = document.getElementById('adm-selo');
+
+    // limpa antes de preencher
+    fMes.innerHTML = '<option value="">Selecione...</option>';
+    alvo.innerHTML = '<option value="">Selecione...</option>';
+    selo.innerHTML = '<option value="">Selecione...</option>';
+
+    // ===== USUÁRIOS =====
+    Object.entries(users).forEach(([id, u]) => {
+
+        const nome = u.nome || id;
+
+        fMes.innerHTML += `<option value="${id}">${nome}</option>`;
+        alvo.innerHTML += `<option value="${id}">${nome}</option>`;
+    });
+
+    // ===== BADGES =====
+    Object.entries(BADGES).forEach(([id, b]) => {
+        selo.innerHTML += `<option value="${id}">${b.t}</option>`;
+    });
+}
+
 
 
 const ADMINS = ["Narry", "Cleide Tavares"];
@@ -1566,7 +1598,12 @@ window.tentarAcessoAdmin = () => {
         return mostrarToast('❌ ACESSO NEGADO', 'error');
     }
     
-    const modal = criarModal('⚙️ Painel Admin', `
+    criarModal('⚙️ Painel Admin', `
+   ... HTML DO ADMIN ...
+`);
+
+setTimeout(preencherSelectsAdmin, 100);
+
    <div class="space-y-4">
 
     <div>
@@ -2019,6 +2056,7 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
 
