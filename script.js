@@ -1594,36 +1594,43 @@ window.abrirConversaComPerfil = async (nome) => {
 
 // ==================== ADMIN COMPLETO ====================
 window.tentarAcessoAdmin = () => {
-    if (!isAdmin)
+
+    if (!isAdmin) {
         return mostrarToast('❌ ACESSO NEGADO', 'error');
     }
-    
+
     criarModal('⚙️ Painel Admin', `
-   ... HTML DO ADMIN ...
-`);
 
-setTimeout(preencherSelectsAdmin, 100);
+    <div class="space-y-6">
 
-   <div class="space-y-4">
-        <p class="font-bold text-sm mb-1">Funcionário do mês</p>
-        <select id="adm-f-mes" class="w-full glass-card p-2 rounded-xl"></select>
-        <button onclick="salvarFuncionarioMes()"
-        class="w-full glossy bg-blue-600 text-white py-2 rounded-xl font-bold mt-2">
-            Salvar Funcionário do Mês
-        </button>
+        <div class="space-y-4">
+            <p class="font-bold text-sm mb-1">Funcionário do mês</p>
+            <select id="adm-f-mes" class="w-full glass-card p-2 rounded-xl"></select>
+
+            <button onclick="salvarFuncionarioMes()"
+            class="w-full glossy bg-blue-600 text-white py-2 rounded-xl font-bold mt-2">
+                Salvar Funcionário do Mês
+            </button>
+        </div>
+
+        <div class="space-y-4">
+            <p class="font-bold text-sm mb-1">Conceder badge</p>
+            <select id="adm-alvo" class="w-full glass-card p-2 rounded-xl mb-2"></select>
+            <select id="adm-selo" class="w-full glass-card p-2 rounded-xl"></select>
+
+            <button onclick="concederBadgeAdmin()"
+            class="w-full glossy bg-purple-600 text-white py-2 rounded-xl font-bold mt-2">
+                Conceder Badge
+            </button>
+        </div>
+
     </div>
 
-    <div>
-        <p class="font-bold text-sm mb-1">Conceder badge</p>
-        <select id="adm-alvo" class="w-full glass-card p-2 rounded-xl mb-2"></select>
-        <select id="adm-selo" class="w-full glass-card p-2 rounded-xl"></select>
-        <button onclick="concederBadgeAdmin()"
-        class="w-full glossy bg-purple-600 text-white py-2 rounded-xl font-bold mt-2">
-            Conceder Badge
-        </button>
-    </div>
+    `);
 
-</div>
+    setTimeout(preencherSelectsAdmin, 150);
+};
+
 
             
             <div>
@@ -2054,6 +2061,7 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
 
