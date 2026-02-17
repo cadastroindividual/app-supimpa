@@ -1594,7 +1594,7 @@ window.abrirConversaComPerfil = async (nome) => {
 
 // ==================== ADMIN COMPLETO ====================
 window.tentarAcessoAdmin = () => {
-    if (!isAdmin()) {
+    if (!isAdmin() {
         return mostrarToast('❌ ACESSO NEGADO', 'error');
     }
     
@@ -1605,8 +1605,6 @@ window.tentarAcessoAdmin = () => {
 setTimeout(preencherSelectsAdmin, 100);
 
    <div class="space-y-4">
-
-    <div>
         <p class="font-bold text-sm mb-1">Funcionário do mês</p>
         <select id="adm-f-mes" class="w-full glass-card p-2 rounded-xl"></select>
         <button onclick="salvarFuncionarioMes()"
@@ -2056,6 +2054,7 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
 
