@@ -92,6 +92,7 @@ function isAdmin() {
 }
 
 // ==================== LOGIN ====================
+
 async function carregarEquipe() {
     try {
         const r = await fetch('equipe.json');
@@ -103,55 +104,75 @@ async function carregarEquipe() {
     }
 }
 
+// agora busca pelo EMAIL (100% confiável)
 async function buscarDadosUsuarioPorEmail(email) {
     const eq = await carregarEquipe();
-    const user = email.split('@')[0];
-    return eq.find(p => p.nome.toLowerCase().includes(user.toLowerCase()));
+    return eq.find(p => p.email && p.email.toLowerCase() === email.toLowerCase());
 }
 
 window.realizarLogin = async () => {
+
     let email = document.getElementById('login-user').value.trim().toLowerCase();
     const senha = document.getElementById('login-pass').value;
-    if (!email || !senha) return mostrarToast('Preencha os campos', 'warning');
-    if (!email.includes('@')) email += '@lider-saude.com';
-    if (!email.includes('@')) email += '@lider-saude.com';
-email = email.toLowerCase();
 
-    
+    if (!email || !senha)
+        return mostrarToast('Preencha os campos', 'warning');
+
+    // permite digitar só o nome
+    if (!email.includes('@'))
+        email += '@lider-saude.com';
+
     try {
+
+        // 🔐 autentica no firebase
         const cred = await signInWithEmailAndPassword(auth, email, senha);
+
+        // 🔎 pega dados no equipe.json
         const dados = await buscarDadosUsuarioPorEmail(cred.user.email);
-        if (!dados) throw new Error('Usuário não encontrado');
-        
-        currentUser = { ...dados, email: cred.user.email, uid: cred.user.uid };
+
+        if (!dados) {
+            await signOut(auth);
+            return mostrarToast('Usuário não está cadastrado na equipe.json', 'error');
+        }
+
+        // ✔ cria usuário logado corretamente
+        currentUser = {
+            ...dados,
+            email: cred.user.email,
+            uid: cred.user.uid
+        };
+
         const uid = currentUser.nome.replace(/\s/g, '');
-        await update(ref(db, `users/${uid}`), { status: 'online', ultimoAcesso: serverTimestamp() });
+
+        await update(ref(db, `users/${uid}`), {
+            status: 'online',
+            ultimoAcesso: serverTimestamp()
+        });
+
         localStorage.setItem('supimpa_session', JSON.stringify(currentUser));
+
+        // entra no sistema
+        document.getElementById('tela-login').classList.add('hidden');
+        document.getElementById('main-header').classList.remove('hidden');
+
         init();
         verificarCheckin();
+
     } catch (e) {
+
         let msg = '❌ Usuário ou senha incorretos';
-        if (e.code === 'auth/too-many-requests') msg = '⏱️ Muitas tentativas';
+
+        if (e.code === 'auth/user-not-found')
+            msg = 'Usuário não existe no Firebase';
+
+        if (e.code === 'auth/wrong-password')
+            msg = 'Senha incorreta';
+
+        if (e.code === 'auth/too-many-requests')
+            msg = '⏱️ Muitas tentativas, aguarde';
+
         mostrarToast(msg, 'error');
     }
-};
-
-window.realizarLogout = async () => {
-    const uid = currentUser.nome.replace(/\s/g, '');
-    await update(ref(db, `users/${uid}`), { status: 'offline' });
-    await signOut(auth);
-    localStorage.clear();
-    location.reload();
-};
-
-window.esqueceuSenha = async () => {
-    let email = prompt('Digite seu email:');
-    if (!email) return;
-    if (!email.includes('@')) email += '@lider-saude.com';
-    try {
-        await sendPasswordResetEmail(auth, email);
-        mostrarToast('📧 Email enviado!', 'success');
-    } catch { mostrarToast('❌ Email não encontrado', 'error'); }
 };
 
 // ==================== CHECK-IN ====================
@@ -1973,6 +1994,7 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
 
