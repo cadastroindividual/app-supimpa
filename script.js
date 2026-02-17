@@ -1594,7 +1594,7 @@ window.abrirConversaComPerfil = async (nome) => {
 
 // ==================== ADMIN COMPLETO ====================
 window.tentarAcessoAdmin = () => {
-    if (!isAdmin) / }
+    if (!isAdmin)
         return mostrarToast('❌ ACESSO NEGADO', 'error');
     }
     
@@ -2054,6 +2054,7 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
 
