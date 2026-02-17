@@ -1619,7 +1619,7 @@ window.alterarSetor = async () => {
     if (!userId || !novoSetor) return mostrarToast('Preencha os campos', 'warning');
     
     const eq = await carregarEquipe();
-    const usuario = eq.find(u => u.nome.replace(/\s/g, '') === userId);
+    const usuario = equipe.find(u => u.email === user.email);
     if (!usuario) return;
     
     // Atualizar no equipe.json seria necessário backend
@@ -1973,6 +1973,7 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
 
