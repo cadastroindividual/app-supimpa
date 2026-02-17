@@ -858,7 +858,7 @@ window.removerCardAnotacao = async (cardId) => {
 
 // ==================== SCRIPTS COM CARDS ====================
 window.abrirScripts = () => {
-    const ehAdmin = isAdmin());
+    const ehAdmin = isAdmin();
     const modal = criarModal('📚 Wiki de Scripts', `
         ${ehAdmin ? '<button onclick="criarCardScript()" class="w-full glossy bg-green-600 text-white py-3 rounded-xl font-bold mb-4">➕ Novo Script</button>' : ''}
         <div id="scripts-cards" class="space-y-3"></div>
@@ -881,7 +881,7 @@ async function carregarScripts() {
                     <h4 class="font-bold text-sm">${s.titulo}</h4>
                     <p class="text-xs opacity-60">${s.categoria}</p>
                 </div>
-                ${isAdmin()) ? `
+                ${isAdmin() ? `
                     <div class="flex gap-2">
                         <button onclick="editarScript('${c.key}')" class="text-blue-500"><i data-lucide="edit" class="w-4 h-4"></i></button>
                         <button onclick="removerScript('${c.key}')" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
@@ -924,6 +924,7 @@ window.removerScript = async (id) => {
     await remove(ref(db, `scripts/${id}`));
     carregarScripts();
 };
+
 
 // ==================== CALENDÁRIO ====================
 window.abrirCalendario = () => {
@@ -1994,6 +1995,7 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
 
