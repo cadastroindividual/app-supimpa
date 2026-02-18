@@ -1629,33 +1629,25 @@ window.tentarAcessoAdmin = () => {
     `);
 
     setTimeout(preencherSelectsAdmin, 150);
-};
+<div class="space-y-4">
+    <p class="font-bold text-sm mb-1">Funcionário do mes</p>
+    <select id="adm-f-mes" class="w-full glass-card p-2 rounded-xl"></select>
+    <button onclick="salvarFuncionarioMes()"
+    class="w-full glossy bg-blue-600 text-white py-2 rounded-xl font-bold mt-2">
+        Salvar Funcionário do Mês
+    </button>
+</div>
 
+<div>
+    <p class="font-bold text-sm mb-1">Conceder badge</p>
+    <select id="adm-alvo" class="w-full glass-card p-2 rounded-xl mb-2"></select>
+    <select id="adm-selo" class="w-full glass-card p-2 rounded-xl"></select>
+    <button onclick="concederBadgeAdmin()"
+    class="w-full glossy bg-purple-600 text-white py-2 rounded-xl font-bold mt-2">
+        Conceder Badge
+    </button>
+</div>
 
-            
-            <div>
-                <label class="text-xs font-bold block mb-1">Desafio Relâmpago</label>
-                <input type="text" id="desafio-texto" placeholder="Ex: Poste foto do café e ganhe 15 XP!" class="w-full p-3 glass-card rounded-xl outline-none mb-2">
-                <input type="number" id="desafio-xp" placeholder="XP do desafio" class="w-full p-3 glass-card rounded-xl outline-none mb-2">
-                <input type="text" id="desafio-hashtags" placeholder="Hashtags (separadas por espaço)" class="w-full p-3 glass-card rounded-xl outline-none mb-2">
-                <input type="date" id="desafio-prazo" class="w-full p-3 glass-card rounded-xl outline-none mb-2">
-                <button onclick="criarDesafio()" class="w-full glossy bg-purple-600 text-white py-3 rounded-xl font-bold">⚡ Criar Desafio</button>
-            </div>
-            
-            <div>
-                <label class="text-xs font-bold block mb-1">Desafios Ativos</label>
-                <div id="desafios-lista" class="space-y-2 max-h-40 overflow-y-auto"></div>
-            </div>
-              <button onclick="resetarXP()" 
-                class="w-full glossy bg-red-600 text-white py-3 rounded-xl font-bold mb-4">
-                🔥 Resetar Ranking Geral
-            </button>
-            <button onclick="salvarAdmin()" class="w-full glossy bg-blue-600 text-white py-3 rounded-xl font-bold">💾 Salvar Configurações</button>
-        </div>
-    `);
-    
-    preencherSelectsAdmin();
-    carregarDesafiosAtivos();
 };
 
 async function preencherSelectsAdmin() {
@@ -2061,6 +2053,7 @@ auth.onAuthStateChanged(async u => {
         }
     }
 });
+
 
 
 
